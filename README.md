@@ -1,1 +1,1 @@
-# data-loves-ml-for-people-course
+# Home works for Machine Learning for people course
