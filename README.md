@@ -1,1 +1,1 @@
-# Home works for Machine Learning for people course
+# Homework for the course "Machine Learning for People"
