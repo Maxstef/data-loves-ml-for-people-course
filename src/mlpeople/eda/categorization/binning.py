@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from mlpeople.eda.outliers.detection  import get_outlier_range_series
+from mlpeople.eda.outliers.detection  import get_outlier_range
 
 def pd_cut_by_quantiles(
     series,
@@ -106,7 +106,7 @@ def pd_cut_by_values(
     """
 
     if bins is None:
-        Min_value, Max_value = get_outlier_range_series(series)
+        Min_value, Max_value = get_outlier_range(series)
 
         # Ensure Min_value <= 10th percentile, Max_value >= 90th percentile
         Min_value = min(Min_value, series.quantile(0.1))

@@ -52,7 +52,7 @@ def scatter_compare_by_category(
 
     def get_range(data, col):
         if drop_outliers:
-            return get_outlier_range(data, col)
+            return get_outlier_range(data[col])
         return data[col].min(), data[col].max()
 
     for index, val in enumerate(df[target_col].dropna().unique(), start=1):

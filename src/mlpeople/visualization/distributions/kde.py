@@ -43,7 +43,7 @@ def kde_plot(df, col_x, target_col=None, title=None, labels=None, drop_outliers=
 
     def plot_subset(data, label_key):
         if drop_outliers:
-            min_val, max_val = get_outlier_range(data, col_x)
+            min_val, max_val = get_outlier_range(data[col_x])
         else:
             min_val, max_val = data[col_x].min(), data[col_x].max()
 

@@ -49,7 +49,7 @@ def draw_boxplot(
         plt.subplot(1, 2, subplot_position)
 
     if drop_outliers:
-        min_y, max_y = get_outlier_range(df, col_y)
+        min_y, max_y = get_outlier_range(df[col_y])
     else:
         min_y, max_y = df[col_y].min(), df[col_y].max()
 
