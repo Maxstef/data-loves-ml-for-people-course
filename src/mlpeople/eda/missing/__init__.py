@@ -5,6 +5,9 @@ from .analysis import (
 from .reporting import (
     show_cols_below_missing_threshold,
     show_cols_above_missing_threshold,
+    show_numeric_col_report,
+    show_filled_numeric_histogram,
+    show_categorical_col_report,
 )
 from .filtering import (
     drop_cols_above_missing_threshold,
@@ -15,4 +18,7 @@ __all__ = [
     'drop_cols_above_missing_threshold',
     'show_cols_below_missing_threshold',
     'show_cols_above_missing_threshold',
+    'show_numeric_col_report',
+    'show_filled_numeric_histogram',
+    'show_categorical_col_report',
 ]
