@@ -1,51 +1,60 @@
 
 
-def get_outlier_range_series(series):
+def get_outlier_range(series, method="iqr", threshold=1.5):
     """
-    Calculate the typical outlier range for a numeric pandas Series using the IQR method.
+    Calculate outlier range for a numeric pandas Series.
 
     Parameters
     ----------
-    series : pandas.Series
-        Numeric data series to calculate the outlier range for.
+    series : pd.Series
+        Numeric data series.
+    method : {"iqr", "std"}, default "iqr"
+        Method to detect outliers:
+        - "iqr": uses Q1 - 1.5*IQR, Q3 + 1.5*IQR
+        - "std": uses mean ± threshold * std
+    threshold : float, default 1.5
+        Multiplier for IQR or standard deviation.
 
     Returns
     -------
     tuple
-        (Min_value, Max_value) representing the lower and upper bounds for outliers.
-        Values outside this range are typically considered outliers.
-
-    Notes
-    -----
-    - Uses the standard 1.5 * IQR rule:
-        Min_value = Q1 - 1.5 * IQR
-        Max_value = Q3 + 1.5 * IQR
-    - Q1 is the 25th percentile, Q3 is the 75th percentile.
+        (min_value, max_value) for outlier detection.
     """
 
-    Q1 = series.quantile(0.25)
-    Q3 = series.quantile(0.75)
-    IQR = Q3 - Q1
-    Min_value = (Q1 - 1.5 * IQR)
-    Max_value = (Q3 + 1.5 * IQR)
-    return Min_value, Max_value
+    if method == "iqr":
+        Q1 = series.quantile(0.25)
+        Q3 = series.quantile(0.75)
+        IQR = Q3 - Q1
+        min_value = Q1 - threshold * IQR
+        max_value = Q3 + threshold * IQR
+    elif method == "std":
+        mean = series.mean()
+        std = series.std()
+        min_value = mean - threshold * std
+        max_value = mean + threshold * std
+    else:
+        raise ValueError("method must be 'iqr' or 'std'")
 
-def get_outlier_range(dataset, column):
+    return min_value, max_value
+
+
+def get_outlier_mask(series, method="iqr", threshold=1.5):
     """
-    Calculate the outlier range for a specific column in a DataFrame.
+    Return boolean mask indicating outliers in the series.
 
     Parameters
     ----------
-    dataset : pandas.DataFrame
-        DataFrame containing the column to check.
-    column : str
-        Name of the numeric column to calculate the outlier range.
+    series : pd.Series
+        Numeric series.
+    method : {"iqr", "std"}, default "iqr"
+        Outlier detection method.
+    threshold : float, default 1.5
+        Multiplier for IQR or standard deviation.
 
     Returns
     -------
-    tuple
-        (Min_value, Max_value) representing the lower and upper bounds for outliers
-        in the specified column.
+    pd.Series (bool)
+        True indicates an outlier.
     """
-
-    return get_outlier_range_series(dataset[column])
+    min_val, max_val = get_outlier_range(series, method, threshold)
+    return (series < min_val) | (series > max_val)
