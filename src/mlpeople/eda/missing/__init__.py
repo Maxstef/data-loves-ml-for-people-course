@@ -1,9 +1,13 @@
 # mlpeople/eda/missing/__init__.py
-from .analysis import get_null_df
 from .analysis import (
-    drop_cols_above_missing_threshold,
+    get_null_df,
+)
+from .reporting import (
     show_cols_below_missing_threshold,
     show_cols_above_missing_threshold,
+)
+from .filtering import (
+    drop_cols_above_missing_threshold,
 )
 
 __all__ = [
