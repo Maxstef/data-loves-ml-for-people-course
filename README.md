@@ -34,6 +34,7 @@ jupyter lab
 After this, you can immediately run notebooks, import mlpeople, or start development and testing.
 
 ## 3. Project Structure
+```
 data-loves-ml-for-people-course/
 ├── src/
 │   └── mlpeople/ # python files orginized as src project (Python package)
@@ -57,6 +58,7 @@ data-loves-ml-for-people-course/
 ├── environment.yml
 ├── pyproject.toml
 └── README.md
+```
 
 ---
 
