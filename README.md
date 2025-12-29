@@ -96,14 +96,7 @@ conda env update -f environment.yml
 pip install -e .
 ```
 
-
-### 4.5. Optional: Install development tools
-
-```bash
-pip install -e ".[dev]"
-```
-
-### 4.6. Running notebooks
+### 4.5. Running notebooks
 - Install notebook dependencies (if not included):
 ```bash
 pip install -e ".[notebooks]"
@@ -113,7 +106,40 @@ pip install -e ".[notebooks]"
 jupyter lab
 ```
 
-### 4.7. Running Tests
+### 4.6. Optional: Install development tools
+
+```bash
+pip install -e ".[dev]"
+```
+
+#### 4.6.1. Running Tests
 ```bash
 pytest -v tests/
+```
+
+#### 4.6.2. Format code with Black
+Check formatting without changing files:
+```bash
+black --check src/ tests/
+```
+
+Auto-format code:
+```bash
+black src/ tests/
+```
+
+#### 4.6.3. Lint and check code with Ruff
+Check for errors, unused imports, and style violations:
+```bash
+ruff check src/ tests/
+```
+
+Automatically fix fixable issues:
+```bash
+ruff fix src/ tests/
+```
+
+#### 4.6.4. Type checking with Mypy
+```bash
+mypy src/
 ```
