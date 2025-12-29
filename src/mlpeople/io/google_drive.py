@@ -44,7 +44,7 @@ def get_access_token():
     return response.json()["access_token"]
 
 
-def download_file_iss(file_id, output_path):
+def download_file_iss(file_id, output_path, chunk_size=65536):
     """Download a file from Google Drive using a service account (requires authentication)."""
     output_path = Path(output_path).resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -58,8 +58,9 @@ def download_file_iss(file_id, output_path):
     response.raise_for_status()
 
     with open(output_path, "wb") as f:
-        for chunk in response.iter_content(8192):
-            f.write(chunk)
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            if chunk:
+                f.write(chunk)
 
 
 def download_file_public(file_id, output_path, chunk_size=65536):
