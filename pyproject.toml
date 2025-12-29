@@ -22,7 +22,8 @@ dependencies = [
     # Web / parsing
     "requests>=2.31,<3.0",
     "beautifulsoup4>=4.12,<5.0",
-    "PyJWT>=2.8,<3.0",
+    "pyjwt>=2.8,<3.0",
+    "cryptography>=41.0,<44.0", # <-- required for RS256
 ]
 
 [project.optional-dependencies]

@@ -3,6 +3,63 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import requests
 import logging
+import jwt
+import time
+
+from mlpeople.config import (
+    GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    GOOGLE_PRIVATE_KEY,
+    GOOGLE_TOKEN_URL,
+    GOOGLE_SCOPE,
+)
+
+
+def get_access_token():
+    """Get a Google Drive access token using a service account."""
+    if not GOOGLE_SERVICE_ACCOUNT_EMAIL or not GOOGLE_PRIVATE_KEY:
+        raise ValueError(
+            "Google service account credentials are not set in environment variables."
+        )
+
+    now = int(time.time())
+
+    payload = {
+        "iss": GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        "scope": GOOGLE_SCOPE,
+        "aud": GOOGLE_TOKEN_URL,
+        "iat": now,
+        "exp": now + 3600,
+    }
+
+    signed_jwt = jwt.encode(payload, GOOGLE_PRIVATE_KEY, algorithm="RS256")
+
+    data = {
+        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        "assertion": signed_jwt,
+    }
+
+    response = requests.post(GOOGLE_TOKEN_URL, data=data)
+    response.raise_for_status()
+
+    return response.json()["access_token"]
+
+
+def download_file_iss(file_id, output_path):
+    """Download a file from Google Drive using a service account (requires authentication)."""
+    output_path = Path(output_path).resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    token = get_access_token()
+    headers = {"Authorization": f"Bearer {token}"}
+
+    url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
+
+    response = requests.get(url, headers=headers, stream=True)
+    response.raise_for_status()
+
+    with open(output_path, "wb") as f:
+        for chunk in response.iter_content(8192):
+            f.write(chunk)
 
 
 def download_file_public(file_id, output_path, chunk_size=65536):
