@@ -1,0 +1,22 @@
+name: mlpeople
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+
+  # Core
+  - numpy
+  - pandas
+  - scipy
+
+  # Visualization
+  - matplotlib
+  - seaborn
+
+  # Notebooks
+  - jupyterlab
+  - ipykernel
+
+  - pip:
+      - -e .
