@@ -1,7 +1,10 @@
 import pandas as pd
 from mlpeople.eda.outliers import get_outlier_mask
 
-def remove_outliers(series, series_2=None, method="iqr", threshold=1.5, return_type="series"):
+
+def remove_outliers(
+    series, series_2=None, method="iqr", threshold=1.5, return_type="series"
+):
     """
     Remove outliers from a numeric series based on IQR or standard deviation method.
 

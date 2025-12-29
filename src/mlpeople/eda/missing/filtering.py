@@ -1,5 +1,6 @@
 from mlpeople.eda.missing import get_null_df
 
+
 def drop_cols_above_missing_threshold(df, threshold=40):
     """
     Drop columns whose percentage of missing values exceeds a threshold.
@@ -19,5 +20,7 @@ def drop_cols_above_missing_threshold(df, threshold=40):
     """
 
     null_df = get_null_df(df)
-    columns_to_be_deleted = null_df[null_df['null_percentage'] > threshold].column_name.to_list()
-    return df.drop(columns = columns_to_be_deleted)
+    columns_to_be_deleted = null_df[
+        null_df["null_percentage"] > threshold
+    ].column_name.to_list()
+    return df.drop(columns=columns_to_be_deleted)

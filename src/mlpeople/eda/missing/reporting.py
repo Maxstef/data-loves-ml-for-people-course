@@ -8,14 +8,15 @@ from mlpeople.eda.missing import get_null_df
 def _filter_by_missing_threshold(df, threshold, *, above: bool):
     null_df = get_null_df(df)
     mask = (
-        null_df['null_percentage'] > threshold
+        null_df["null_percentage"] > threshold
         if above
-        else null_df['null_percentage'] < threshold
+        else null_df["null_percentage"] < threshold
     )
     return null_df[mask].sort_values(
-        by='null_percentage',
+        by="null_percentage",
         ascending=False,
     )
+
 
 def show_cols_below_missing_threshold(df, threshold=40):
     """
@@ -36,6 +37,7 @@ def show_cols_below_missing_threshold(df, threshold=40):
     """
 
     return _filter_by_missing_threshold(df, threshold, above=False)
+
 
 def show_cols_above_missing_threshold(df, threshold=40):
     """
@@ -114,7 +116,7 @@ def show_numeric_col_report(df, col, *, plot=True, bins=30, show_boxplot=False):
         plt.xlabel(col)
         plt.ylabel("Frequency")
         plt.show()
-    
+
     if show_boxplot:
         # Boxplot
         plt.figure(figsize=(6, 2))
@@ -231,7 +233,6 @@ def show_filled_numeric_histogram(
     plt.show()
 
 
-
 def show_categorical_col_report(df, col, *, show_plot=False, top_n=None):
     """
     Display a summary of a categorical column with counts, percentages,
@@ -264,11 +265,13 @@ def show_categorical_col_report(df, col, *, show_plot=False, top_n=None):
     # Compute counts and percentages
     value_counts = series.value_counts(dropna=False)
     pct = (value_counts / total_count * 100).round(2)
-    summary = pd.DataFrame({
-        'value': value_counts.index.astype(str),
-        'count': value_counts.values,
-        'percentage': pct.values
-    })
+    summary = pd.DataFrame(
+        {
+            "value": value_counts.index.astype(str),
+            "count": value_counts.values,
+            "percentage": pct.values,
+        }
+    )
 
     # Optionally filter top N
     if top_n is not None:
@@ -280,7 +283,7 @@ def show_categorical_col_report(df, col, *, show_plot=False, top_n=None):
     if show_plot:
         plt.figure(figsize=(8, 5))
         # Replace NaN with string for plotting
-        sns.countplot(x=series.fillna('Missing'), order=summary['value'])
+        sns.countplot(x=series.fillna("Missing"), order=summary["value"])
         plt.title(f"Distribution of '{col}'")
         plt.xlabel(col)
         plt.ylabel("Count")

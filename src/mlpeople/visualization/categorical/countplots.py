@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 
+
 def draw_countplot(
     df,
     col,
@@ -32,16 +33,11 @@ def draw_countplot(
     hue_values = df[hue_col].dropna().unique()
 
     if normalize:
-        data = (
-            df.groupby(hue_col)[col]
-            .value_counts(normalize=True)
-            .mul(100)
-            .round(2)
-        )
+        data = df.groupby(hue_col)[col].value_counts(normalize=True).mul(100).round(2)
         label_fmt = "{:,.1f}%"
     else:
         data = df.groupby(hue_col)[col].value_counts()
-        label_fmt = ''
+        label_fmt = ""
 
     ax = (
         data.unstack(hue_col)
@@ -56,7 +52,9 @@ def draw_countplot(
     plt.show()
 
 
-def draw_bi_countplot_target(df, col, hue_col, target_col, normalize=False, titles=None):
+def draw_bi_countplot_target(
+    df, col, hue_col, target_col, normalize=False, titles=None
+):
     """
     Draw side-by-side bar plots comparing distributions of a categorical variable across two target groups.
 
@@ -89,7 +87,7 @@ def draw_bi_countplot_target(df, col, hue_col, target_col, normalize=False, titl
     """
 
     if titles is None:
-      titles = {}
+        titles = {}
 
     main_title = (
         f"Normalized distribution of values by category: {col}"
@@ -116,7 +114,7 @@ def draw_bi_countplot_target(df, col, hue_col, target_col, normalize=False, titl
             label_fmt = "{:,.1f}%"
         else:
             data = df_temp.groupby(hue_col)[col].value_counts()
-            label_fmt = ''
+            label_fmt = ""
 
         ax = (
             data.unstack(hue_col)
@@ -126,7 +124,7 @@ def draw_bi_countplot_target(df, col, hue_col, target_col, normalize=False, titl
 
         for container in ax.containers:
             ax.bar_label(container, fmt=label_fmt)
-    
+
     # plt.tight_layout()
     plt.show()
 
@@ -165,34 +163,29 @@ def draw_bi_cat_countplot(df, column, hue_column):
     fig.set_size_inches(14, 6)
 
     # -------- Normalized distribution (percentages) --------
-    title_normalized = f'Normalized distribution of values by category: {column}'
+    title_normalized = f"Normalized distribution of values by category: {column}"
 
     proportions = (
-        df.groupby(hue_column)[column]
-        .value_counts(normalize=True)
-        .mul(100)
-        .round(2)
+        df.groupby(hue_column)[column].value_counts(normalize=True).mul(100).round(2)
     )
 
     ax = (
-        proportions
-        .unstack(hue_column)
+        proportions.unstack(hue_column)
         .sort_values(by=unique_hue_values[0], ascending=False)
         .plot.bar(ax=axes[0], title=title_normalized)
     )
 
     # Annotate percentage values on bars
     for container in ax.containers:
-        ax.bar_label(container, fmt='{:,.1f}%')
+        ax.bar_label(container, fmt="{:,.1f}%")
 
     # -------- Absolute counts --------
-    title_counts = f'Number of records by category: {column}'
+    title_counts = f"Number of records by category: {column}"
 
     counts = df.groupby(hue_column)[column].value_counts()
 
     ax = (
-        counts
-        .unstack(hue_column)
+        counts.unstack(hue_column)
         .sort_values(by=unique_hue_values[0], ascending=False)
         .plot.bar(ax=axes[1], title=title_counts)
     )

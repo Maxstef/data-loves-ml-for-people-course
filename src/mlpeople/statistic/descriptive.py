@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def get_mean(sample, use_python=False):
     """
     Compute the mean (average) of a numerical sample.
@@ -22,6 +23,7 @@ def get_mean(sample, use_python=False):
         return sum(sample) / len(sample)
     return np.mean(sample)
 
+
 def get_median(sample, use_python=False):
     """
     Compute the median of a numerical sample.
@@ -43,16 +45,19 @@ def get_median(sample, use_python=False):
     # use numpy case
     if use_python is not True:
         return np.median(sample)
-    
+
     # calculate median with raw python case
     sorted_sample = sorted(sample)
     sample_length = len(sorted_sample)
     is_odd_count = sample_length % 2 == 1
 
     if is_odd_count:
-        return sorted_sample[sample_length//2]
-    
-    return (sorted_sample[sample_length//2 - 1] + sorted_sample[sample_length//2]) / 2
+        return sorted_sample[sample_length // 2]
+
+    return (
+        sorted_sample[sample_length // 2 - 1] + sorted_sample[sample_length // 2]
+    ) / 2
+
 
 def get_variance(sample, ddof=1, use_python=False):
     """
@@ -80,9 +85,10 @@ def get_variance(sample, ddof=1, use_python=False):
 
     # calculate variance with raw python case
     sample_mean = get_mean(sample, use_python=True)
-    sample_minus_mean = [(s - sample_mean)**2 for s in sample]
-    divisor = len(sample) - 1 if ddof else len(sample) # divisor = len(sample) - ddof
-    return sum(sample_minus_mean)/divisor
+    sample_minus_mean = [(s - sample_mean) ** 2 for s in sample]
+    divisor = len(sample) - 1 if ddof else len(sample)  # divisor = len(sample) - ddof
+    return sum(sample_minus_mean) / divisor
+
 
 def get_std(sample, ddof=1, use_python=False):
     """
@@ -107,11 +113,12 @@ def get_std(sample, ddof=1, use_python=False):
     # use numpy case
     if use_python is not True:
         return np.std(sample, ddof=ddof)
-    
+
     # calculate standard deviation with raw python case
     # standard deviation is root square from variance
     # root square is the same as raising to the power of 1/2
     return get_variance(sample, ddof=ddof, use_python=True) ** 0.5
+
 
 def get_covariance(sample_1, sample_2, ddof=1, use_python=False):
     """
@@ -142,10 +149,14 @@ def get_covariance(sample_1, sample_2, ddof=1, use_python=False):
     # calculate covariance with raw python case
     sample_1_mean = get_mean(sample_1, use_python=True)
     sample_2_mean = get_mean(sample_2, use_python=True)
-    samples_mult = [(sample_1[i] - sample_1_mean) * (sample_2[i] - sample_2_mean) for i in range(len(sample_1))]
+    samples_mult = [
+        (sample_1[i] - sample_1_mean) * (sample_2[i] - sample_2_mean)
+        for i in range(len(sample_1))
+    ]
     divisor = len(sample_1) - 1 if ddof else len(sample_1)
 
-    return sum(samples_mult)/divisor
+    return sum(samples_mult) / divisor
+
 
 def get_corrcoef(sample_1, sample_2, use_python=False):
     """
@@ -170,7 +181,7 @@ def get_corrcoef(sample_1, sample_2, use_python=False):
     # use numpy case
     if use_python is not True:
         return np.corrcoef(sample_1, sample_2)
-    
+
     # calculate Pearson’s correlation coefficient with raw python case
     # use the same ddof value (0 or 1) for both covariance and standard deviations calculation
     cov_samples = get_covariance(sample_1, sample_2, ddof=1, use_python=True)
@@ -178,4 +189,3 @@ def get_corrcoef(sample_1, sample_2, use_python=False):
     std_2 = get_std(sample_2, ddof=1, use_python=True)
 
     return cov_samples / (std_1 * std_2)
-

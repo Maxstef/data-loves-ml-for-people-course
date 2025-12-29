@@ -4,11 +4,7 @@ import plotly.express as px
 
 
 def show_correlation_matrix_filtered(
-    df,
-    cols=None,
-    abs_threshold=0.5,
-    width=1200,
-    height=1000
+    df, cols=None, abs_threshold=0.5, width=1200, height=1000
 ):
     """
     Display an interactive filtered correlation matrix using Plotly.
@@ -41,7 +37,7 @@ def show_correlation_matrix_filtered(
     """
 
     if cols is None:
-        cols = df.select_dtypes('number').columns.tolist()
+        cols = df.select_dtypes("number").columns.tolist()
 
     # compute correlation matrix
     corr = df[cols].corr()
@@ -53,15 +49,15 @@ def show_correlation_matrix_filtered(
     corr = corr.where(corr.abs() > abs_threshold)
 
     # Drop rows and columns that are fully NaN (no strong correlations)
-    corr = corr.dropna(how='all', axis=0).dropna(how='all', axis=1)
+    corr = corr.dropna(how="all", axis=0).dropna(how="all", axis=1)
 
     # Plot full square heatmap
     fig = px.imshow(
         corr,
         text_auto=True,
-        color_continuous_scale='RdBu_r',
-        title='Filtered Correlation Matrix (|corr| > ' + str(abs_threshold) + ')',
-        aspect='auto'
+        color_continuous_scale="RdBu_r",
+        title="Filtered Correlation Matrix (|corr| > " + str(abs_threshold) + ")",
+        aspect="auto",
     )
 
     fig.update_layout(width=width, height=height)
@@ -69,11 +65,7 @@ def show_correlation_matrix_filtered(
 
 
 def show_correlation_matrix_filtered_static(
-    df,
-    cols=None,
-    abs_threshold=0.5,
-    figsize=(12, 10),
-    cmap='RdBu_r'
+    df, cols=None, abs_threshold=0.5, figsize=(12, 10), cmap="RdBu_r"
 ):
     """
     Display a static filtered correlation matrix using Matplotlib.
@@ -105,7 +97,7 @@ def show_correlation_matrix_filtered_static(
     """
 
     if cols is None:
-        cols = df.select_dtypes('number').columns.tolist()
+        cols = df.select_dtypes("number").columns.tolist()
 
     # Compute correlation matrix
     corr = df[cols].corr()
@@ -117,7 +109,7 @@ def show_correlation_matrix_filtered_static(
     corr = corr.where(corr.abs() > abs_threshold)
 
     # Drop empty rows/columns
-    corr = corr.dropna(how='all', axis=0).dropna(how='all', axis=1)
+    corr = corr.dropna(how="all", axis=0).dropna(how="all", axis=1)
 
     if corr.empty:
         print("No correlations exceed the specified threshold.")
@@ -129,12 +121,12 @@ def show_correlation_matrix_filtered_static(
 
     # Colorbar
     cbar = fig.colorbar(im, ax=ax)
-    cbar.set_label('Correlation')
+    cbar.set_label("Correlation")
 
     # Axis ticks and labels
     ax.set_xticks(range(len(corr.columns)))
     ax.set_yticks(range(len(corr.index)))
-    ax.set_xticklabels(corr.columns, rotation=45, ha='right')
+    ax.set_xticklabels(corr.columns, rotation=45, ha="right")
     ax.set_yticklabels(corr.index)
 
     # Annotate values
@@ -143,14 +135,15 @@ def show_correlation_matrix_filtered_static(
             value = corr.values[i, j]
             if not np.isnan(value):
                 ax.text(
-                    j, i,
+                    j,
+                    i,
                     f"{value:.2f}",
-                    ha='center',
-                    va='center',
-                    color='black',
-                    fontsize=9
+                    ha="center",
+                    va="center",
+                    color="black",
+                    fontsize=9,
                 )
 
-    ax.set_title(f'Filtered Correlation Matrix (|corr| > {abs_threshold})')
+    ax.set_title(f"Filtered Correlation Matrix (|corr| > {abs_threshold})")
     plt.tight_layout()
     plt.show()

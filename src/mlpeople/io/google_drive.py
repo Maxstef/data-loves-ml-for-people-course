@@ -4,6 +4,7 @@ import urllib.parse
 import requests
 import logging
 
+
 def download_file_public(file_id, output_path, chunk_size=65536):
     """
     Download a publicly accessible file from Google Drive, including large files
@@ -53,7 +54,7 @@ def download_file_public(file_id, output_path, chunk_size=65536):
 
     # First request: may return the file directly or a warning page
     response = session.get(BASE_URL, params={"id": file_id}, stream=True)
-    
+
     # Check for potential authorization issues
     if "accounts.google.com" in response.url:
         logging.warning(
@@ -61,7 +62,7 @@ def download_file_public(file_id, output_path, chunk_size=65536):
         )
 
     # Handle the "file too large for virus scan" warning page
-    elif "<input type=\"hidden\" name=\"confirm\"" in response.text:
+    elif '<input type="hidden" name="confirm"' in response.text:
         logging.warning(
             "Large file detected, handling Google Drive virus scan warning page and downloading file..."
         )
@@ -69,7 +70,9 @@ def download_file_public(file_id, output_path, chunk_size=65536):
         inputs = soup.find_all("input", {"type": "hidden"})
 
         # Build a dictionary of all hidden inputs
-        params = {i["name"]: i["value"] for i in inputs if i.get("name") and i.get("value")}
+        params = {
+            i["name"]: i["value"] for i in inputs if i.get("name") and i.get("value")
+        }
 
         # Always ensure mandatory parameters are present
         params.update({"id": file_id, "export": "download", "authuser": "0"})
@@ -89,4 +92,3 @@ def download_file_public(file_id, output_path, chunk_size=65536):
             if chunk:
                 f.write(chunk)
     logging.info("Download completed successfully.")
-

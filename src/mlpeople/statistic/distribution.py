@@ -13,7 +13,7 @@ def doane_bins(data):
     Parameters:
         data : array-like
             Input numerical data.
-    
+
     Returns:
         int : optimal number of bins
     """
@@ -36,19 +36,27 @@ def fit_distributions(data):
         dict : mapping distribution -> [sse, shape_params, loc, scale], sorted by SSE
     """
     # List of candidate distributions
-    MY_DISTRIBUTIONS = [st.beta, st.expon, st.norm,
-                        st.uniform, st.johnsonsb, st.gennorm,
-                        st.gausshyper]
+    MY_DISTRIBUTIONS = [
+        st.beta,
+        st.expon,
+        st.norm,
+        st.uniform,
+        st.johnsonsb,
+        st.gennorm,
+        st.gausshyper,
+    ]
 
     # Histogram for SSE calculation
     num_bins = doane_bins(data)
     frequencies, bin_edges = np.histogram(data, num_bins, density=True)
-    central_values = [(bin_edges[i] + bin_edges[i+1])/2 for i in range(len(bin_edges)-1)]
+    central_values = [
+        (bin_edges[i] + bin_edges[i + 1]) / 2 for i in range(len(bin_edges) - 1)
+    ]
 
     results = {}
     for distribution in MY_DISTRIBUTIONS:
         # Suppress runtime warnings during fitting (common for beta/johnsonsb)
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide="ignore", invalid="ignore"):
             params = distribution.fit(data)
 
         # Unpack parameters
@@ -57,10 +65,9 @@ def fit_distributions(data):
         scale = params[-1]
 
         # Evaluate PDF at bin centers
-        pdf_values = np.array([
-            distribution.pdf(c, *arg, loc=loc, scale=scale)
-            for c in central_values
-        ])
+        pdf_values = np.array(
+            [distribution.pdf(c, *arg, loc=loc, scale=scale) for c in central_values]
+        )
 
         # Replace nan/inf with zero
         pdf_values = np.nan_to_num(pdf_values, nan=0.0, posinf=0.0)
@@ -74,6 +81,7 @@ def fit_distributions(data):
     # Sort distributions by SSE (best fit first)
     results = {k: results[k] for k in sorted(results, key=results.get)}
     return results
+
 
 def plot_fitted_histogram(data, results, n, limit_x_outliers=False, clip_y=False):
     """
@@ -96,10 +104,10 @@ def plot_fitted_histogram(data, results, n, limit_x_outliers=False, clip_y=False
 
     # Plot histogram
     plt.figure(figsize=(10, 5))
-    plt.hist(data, density=True, ec='white', color=(63/235, 149/235, 170/235))
-    plt.title('Histogram')
-    plt.xlabel('Values')
-    plt.ylabel('Frequencies')
+    plt.hist(data, density=True, ec="white", color=(63 / 235, 149 / 235, 170 / 235))
+    plt.title("Histogram")
+    plt.xlabel("Values")
+    plt.ylabel("Frequencies")
 
     # Plot fitted distributions
     for distribution, result in top_distributions.items():
@@ -116,7 +124,7 @@ def plot_fitted_histogram(data, results, n, limit_x_outliers=False, clip_y=False
             p_low, p_high = np.percentile(data, [0.5, 99.5])
         else:
             p_low, p_high = (min(data), max(data))
-    
+
         # Intersection of support and data range
         plot_min = max(p_low, x_min)
         plot_max = min(p_high, x_max)
@@ -138,14 +146,15 @@ def plot_fitted_histogram(data, results, n, limit_x_outliers=False, clip_y=False
             continue  # skip unstable distributions (e.g., gausshyper in rare cases)
 
         # Clean distribution name
-        dist_name = getattr(distribution, 'name', str(distribution).split()[0])
+        dist_name = getattr(distribution, "name", str(distribution).split()[0])
 
         plt.plot(
-            x_plot, y_plot,
+            x_plot,
+            y_plot,
             label=f"{dist_name}: {str(sse)[:6]}",
-            color=(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1))
+            color=(random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)),
         )
 
-    plt.legend(title='Distributions', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.legend(title="Distributions", bbox_to_anchor=(1.05, 1), loc="upper left")
     plt.tight_layout()
     plt.show()

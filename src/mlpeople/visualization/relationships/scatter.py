@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from mlpeople.eda.outliers  import get_outlier_range
+from mlpeople.eda.outliers import get_outlier_range
+
 
 def scatter_compare_by_category(
     df,

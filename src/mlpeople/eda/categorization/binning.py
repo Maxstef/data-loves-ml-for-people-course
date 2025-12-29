@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
-from mlpeople.eda.outliers.detection  import get_outlier_range
+from mlpeople.eda.outliers.detection import get_outlier_range
+
 
 def pd_cut_by_quantiles(
     series,
     quantiles=[0, 0.1, 0.35, 0.7, 0.9, 1],
-    labels=['very low', 'low', 'medium', 'high', 'very high']
+    labels=["very low", "low", "medium", "high", "very high"],
 ):
     """
     Bin a numeric pandas Series into categories using explicit quantile boundaries.
@@ -34,14 +35,14 @@ def pd_cut_by_quantiles(
         series,
         bins=list(series.quantile(quantiles)),
         labels=labels,
-        include_lowest=True
+        include_lowest=True,
     )
 
 
 def pd_qcut_by_quantiles(
     series,
     quantiles=[0, 0.1, 0.35, 0.7, 0.9, 1],
-    labels=['very low', 'low', 'medium', 'high', 'very high']
+    labels=["very low", "low", "medium", "high", "very high"],
 ):
     """
     Bin a numeric pandas Series into categories using equal-sized quantile buckets.
@@ -65,18 +66,21 @@ def pd_qcut_by_quantiles(
         Categorical Series with values assigned to quantile-based bins.
     """
 
-    return pd.qcut(
-        series,
-        q=quantiles,
-        labels=labels,
-        duplicates='drop'
-    )
+    return pd.qcut(series, q=quantiles, labels=labels, duplicates="drop")
 
 
 def pd_cut_by_values(
     series,
     bins=None,
-    labels=['lower outliers', 'very low', 'low', 'medium', 'high', 'very high', 'upper outliers']
+    labels=[
+        "lower outliers",
+        "very low",
+        "low",
+        "medium",
+        "high",
+        "very high",
+        "upper outliers",
+    ],
 ):
     """
     Bin a numeric pandas Series using explicit value-based thresholds,
@@ -120,12 +124,7 @@ def pd_cut_by_values(
             series.quantile(0.7),
             series.quantile(0.9),
             Max_value,
-            np.inf
+            np.inf,
         ]
-    
-    return pd.cut(
-        series,
-        bins=bins,
-        labels=labels,
-        include_lowest=True
-    )
+
+    return pd.cut(series, bins=bins, labels=labels, include_lowest=True)

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from mlpeople.eda.outliers  import get_outlier_range
+from mlpeople.eda.outliers import get_outlier_range
+
 
 def kde_plot(df, col_x, target_col=None, title=None, labels=None, drop_outliers=False):
     """
@@ -63,5 +64,3 @@ def kde_plot(df, col_x, target_col=None, title=None, labels=None, drop_outliers=
     plt.legend()
     plt.title(title or "")
     plt.show()
-
-   

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+
 def get_all_bool_flag_cols(df: pd.DataFrame):
     """
     Identify candidate boolean/flag columns in a DataFrame.
@@ -40,12 +41,7 @@ def get_all_bool_flag_cols(df: pd.DataFrame):
             continue
 
         # Normalize non-null values
-        normalized = (
-            s.dropna()
-             .astype(str)
-             .str.strip()
-             .str.casefold()
-        )
+        normalized = s.dropna().astype(str).str.strip().str.casefold()
 
         unique = normalized.unique()
 
@@ -56,7 +52,6 @@ def get_all_bool_flag_cols(df: pd.DataFrame):
         flag_cols.append(col)
 
     return flag_cols
-
 
 
 def optimize_bool_flag_cols(df: pd.DataFrame, flag_cols):
@@ -111,12 +106,7 @@ def optimize_bool_flag_cols(df: pd.DataFrame, flag_cols):
     for col in flag_cols:
         series = df[col]
 
-        normalized = (
-            series.dropna()
-             .astype(str)
-             .str.strip()
-             .str.casefold()
-        )
+        normalized = series.dropna().astype(str).str.strip().str.casefold()
 
         unique = normalized.unique()
 
@@ -147,11 +137,7 @@ def optimize_bool_flag_cols(df: pd.DataFrame, flag_cols):
         df[col] = np.where(
             series.isna(),
             np.nan,
-            series.astype(str)
-             .str.strip()
-             .str.casefold()
-             .eq(true_value)
-             .astype("int8")
+            series.astype(str).str.strip().str.casefold().eq(true_value).astype("int8"),
         )
 
     return df

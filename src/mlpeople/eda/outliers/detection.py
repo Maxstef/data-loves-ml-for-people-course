@@ -1,5 +1,3 @@
-
-
 def get_outlier_range(series, method="iqr", threshold=1.5):
     """
     Calculate outlier range for a numeric pandas Series.
