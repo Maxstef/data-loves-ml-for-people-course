@@ -100,15 +100,20 @@ pip install -e .
 ### 4.5. Optional: Install development tools
 
 ```bash
-pip install -e .[dev]
+pip install -e ".[dev]"
 ```
 
 ### 4.6. Running notebooks
 - Install notebook dependencies (if not included):
 ```bash
-pip install -e .[notebooks]
+pip install -e ".[notebooks]"
 ```
 - To launch JupyterLab:
 ```bash
 jupyter lab
+```
+
+### 4.7. Running Tests
+```bash
+pytest -v tests/
 ```
