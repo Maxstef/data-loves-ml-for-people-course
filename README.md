@@ -103,10 +103,15 @@ pip install -e .
 ```bash
 pip install -e ".[notebooks]"
 ```
+- Create a conda kernel to be used in JupyterLab
+```bash
+python -m ipykernel install --user --name mlpeople  
+```
 - To launch JupyterLab:
 ```bash
 jupyter lab
 ```
+- In Jupyter: Select kernel: mlpeople
 
 ### 4.6. Optional: Install development tools
 
