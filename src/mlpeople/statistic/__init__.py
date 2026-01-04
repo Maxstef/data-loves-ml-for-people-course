@@ -7,7 +7,13 @@ from .descriptive import (
     get_covariance,
     get_corrcoef,
 )
-from .distribution import doane_bins, fit_distributions, plot_fitted_histogram
+from .distribution import (
+    doane_bins,
+    fit_distributions,
+    plot_fitted_histogram,
+    qqplot_sample_vs_sample,
+    qqplot_from_dataframe,
+)
 
 __all__ = [
     "get_mean",
@@ -19,4 +25,6 @@ __all__ = [
     "doane_bins",
     "fit_distributions",
     "plot_fitted_histogram",
+    "qqplot_sample_vs_sample",
+    "qqplot_from_dataframe",
 ]
