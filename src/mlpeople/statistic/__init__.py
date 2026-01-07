@@ -14,6 +14,13 @@ from .distribution import (
     qqplot_sample_vs_sample,
     qqplot_from_dataframe,
 )
+from .clt_simulation import (
+    clt_sample_proportions,
+    clt_sample_means,
+    clt_from_normal_population,
+    clt_from_categorical_population,
+    clt_from_bernoulli_population,
+)
 
 __all__ = [
     "get_mean",
@@ -27,4 +34,9 @@ __all__ = [
     "plot_fitted_histogram",
     "qqplot_sample_vs_sample",
     "qqplot_from_dataframe",
+    "clt_sample_proportions",
+    "clt_sample_means",
+    "clt_from_normal_population",
+    "clt_from_categorical_population",
+    "clt_from_bernoulli_population",
 ]
