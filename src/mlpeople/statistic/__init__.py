@@ -21,6 +21,14 @@ from .clt_simulation import (
     clt_from_categorical_population,
     clt_from_bernoulli_population,
 )
+from .hypothesis_tests import (
+    z_test,
+    z_test_summary,
+    t_test,
+    t_test_for_sample,
+    t_test_summary,
+    plot_z_vs_t,
+)
 
 __all__ = [
     "get_mean",
@@ -39,4 +47,10 @@ __all__ = [
     "clt_from_normal_population",
     "clt_from_categorical_population",
     "clt_from_bernoulli_population",
+    "z_test",
+    "z_test_summary",
+    "t_test",
+    "t_test_for_sample",
+    "t_test_summary",
+    "plot_z_vs_t",
 ]
