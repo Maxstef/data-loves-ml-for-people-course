@@ -28,6 +28,8 @@ from .hypothesis_tests import (
     t_test_for_sample,
     t_test_summary,
     plot_z_vs_t,
+    two_sample_z_test,
+    two_sample_t_test,
 )
 
 __all__ = [
@@ -53,4 +55,6 @@ __all__ = [
     "t_test_for_sample",
     "t_test_summary",
     "plot_z_vs_t",
+    "two_sample_z_test",
+    "two_sample_t_test",
 ]

@@ -454,3 +454,125 @@ def plot_z_vs_t(
     plt.legend()
     plt.grid(True)
     plt.show()
+
+# --------------------------
+# Two-sample Z-test
+# --------------------------
+def two_sample_z_test(sample1, sample2, population_std1, population_std2, two_sided=True, plot=False):
+    """
+    Performs a two-sample z-test (independent samples, known population stds).
+
+    Parameters
+    ----------
+    sample1, sample2 : array-like
+        Independent samples
+    population_std1, population_std2 : float
+        Known population standard deviations
+    two_sided : bool
+        Two-sided test if True
+    plot : bool
+        Whether to plot Z distribution
+
+    Returns
+    -------
+    z_stat : float
+        Z-test statistic
+    p_value : float
+        P-value
+    """
+    sample1 = np.asarray(sample1)
+    sample2 = np.asarray(sample2)
+    n1, n2 = len(sample1), len(sample2)
+    mean1, mean2 = sample1.mean(), sample2.mean()
+    
+    mean_diff = mean1 - mean2
+    se = np.sqrt(population_std1**2 / n1 + population_std2**2 / n2)
+    
+    z_stat = (mean_diff) / se
+    if two_sided:
+        p_value = 2 * (1 - norm.cdf(abs(z_stat)))
+    else:
+        p_value = 1 - norm.cdf(z_stat) if z_stat > 0 else norm.cdf(z_stat)
+    
+    if plot:
+        # Plot the Z-distribution of the difference
+        x = np.linspace(mean_diff - 4*se, mean_diff + 4*se, 500)
+        pdf = norm.pdf(x, loc=0, scale=se)
+        plt.figure(figsize=(10,6))
+        plt.plot(x, pdf, label=f'Z-distribution (σ known), SE={se:.2f}', color='blue')
+        plt.axvline(mean_diff, color='black', linestyle='--', label=f'Mean difference = {mean_diff:.2f}')
+        plt.axvline(0, color='green', linestyle='-', label='Null difference = 0')
+        plt.title(f"Two-sample Z-test\nz = {z_stat:.2f}, p = {p_value:.4f}")
+        plt.xlabel("Difference of sample means")
+        plt.ylabel("Density")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+    
+    return z_stat, p_value
+
+
+# --------------------------
+# Two-sample T-test
+# --------------------------
+def two_sample_t_test(sample1, sample2, equal_var=True, two_sided=True, plot=False):
+    """
+    Performs a two-sample t-test (independent samples, unknown population stds).
+    Can perform pooled t-test (equal_var=True) or Welch's t-test (equal_var=False).
+
+    Returns
+    -------
+    t_stat : float
+        T-test statistic
+    p_value : float
+        P-value
+    df : float
+        Degrees of freedom
+    """
+    sample1 = np.asarray(sample1)
+    sample2 = np.asarray(sample2)
+    n1, n2 = len(sample1), len(sample2)
+    mean1, mean2 = sample1.mean(), sample2.mean()
+    s1, s2 = sample1.std(ddof=1), sample2.std(ddof=1)
+    
+    mean_diff = mean1 - mean2
+    
+    if equal_var:
+        # Pooled variance
+        df = n1 + n2 - 2
+        sp2 = ((n1-1)*s1**2 + (n2-1)*s2**2)/df
+        se = np.sqrt(sp2*(1/n1 + 1/n2))
+    else:
+        # Welch's t-test
+        se = np.sqrt(s1**2/n1 + s2**2/n2)
+        df = (s1**2/n1 + s2**2/n2)**2 / ((s1**2/n1)**2/(n1-1) + (s2**2/n2)**2/(n2-1))
+    
+    t_stat = mean_diff / se
+    if two_sided:
+        p_value = 2 * (1 - t.cdf(abs(t_stat), df=df))
+    else:
+        p_value = 1 - t.cdf(t_stat, df=df) if t_stat > 0 else t.cdf(t_stat, df=df)
+    
+    if plot:
+        # Plot T-distribution of the difference
+        x_min = mean_diff - 4*se
+        x_max = mean_diff + 4*se
+        x = np.linspace(x_min, x_max, 500)
+        t_pdf = t.pdf((x-0)/se, df=df)/se  # Null difference = 0
+        z_pdf = norm.pdf(x, loc=0, scale=se)
+        
+        plt.figure(figsize=(10,6))
+        plt.plot(x, z_pdf, color='blue', label=f'Z approx (σ unknown, SE={se:.2f})')
+        plt.plot(x, t_pdf, color='red', linestyle='--', label=f'T-distribution df={df:.1f}, SE={se:.2f}')
+        plt.axvline(mean_diff, color='black', linestyle=':', label=f'Mean difference = {mean_diff:.2f}')
+        plt.axvline(0, color='green', linestyle='-', label='Null difference = 0')
+        plt.title(f"Two-sample T-test (Equal var={equal_var})\nt = {t_stat:.2f}, p = {p_value:.4f}")
+        plt.xlabel("Difference of sample means")
+        plt.ylabel("Density")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+    
+    return t_stat, p_value, df
+
+
