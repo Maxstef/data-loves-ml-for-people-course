@@ -13,6 +13,9 @@ from .distribution import (
     plot_fitted_histogram,
     qqplot_sample_vs_sample,
     qqplot_from_dataframe,
+    qq_plot_sm,
+    qq_plot_st,
+    qqplot_all_lines,
 )
 from .clt_simulation import (
     clt_sample_proportions,
@@ -44,6 +47,9 @@ __all__ = [
     "plot_fitted_histogram",
     "qqplot_sample_vs_sample",
     "qqplot_from_dataframe",
+    "qq_plot_sm",
+    "qq_plot_st",
+    "qqplot_all_lines",
     "clt_sample_proportions",
     "clt_sample_means",
     "clt_from_normal_population",

@@ -3,6 +3,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
+import statsmodels.api as sm
 
 
 def doane_bins(data):
@@ -284,3 +285,61 @@ def qqplot_from_dataframe(df, col_x, col_y, show_line=True, ax=None, scale=False
         ax=ax,
         scale=scale,
     )
+
+
+def qq_plot_sm(
+    data, dist=st.distributions.norm, line="q", title="QQ - Plot with statsmodels.api"
+):
+    sm.qqplot(data, dist=dist, line=line)
+    plt.title(title)
+    plt.show()
+
+
+def qq_plot_st(
+    data, dist=st.distributions.norm, fit=True, title="QQ - Plot with scipy.stats"
+):
+    st.probplot(data, dist=dist, plot=plt, fit=fit)
+    plt.title(title)
+    plt.show()
+
+
+def qqplot_all_lines(
+    data,
+    lines=("45", "s", "r", "q"),
+    figsize=(10, 8),
+    suptitle="QQ plot – all reference lines",
+):
+    """
+    Create QQ plots for all statsmodels 'line' options using subplots.
+
+    Parameters
+    ----------
+    data : array-like
+        Input data for QQ plot.
+    lines : tuple
+        statsmodels qqplot line options ('45', 's', 'r', 'q').
+    figsize : tuple
+        Figure size.
+    suptitle : str
+        Figure title.
+    """
+
+    n = len(lines)
+    rows = cols = int(n**0.5)
+    if rows * cols < n:
+        cols += 1
+
+    fig, axes = plt.subplots(rows, cols, figsize=figsize)
+    axes = axes.flatten()
+
+    for ax, line in zip(axes, lines):
+        sm.qqplot(data, line=line, ax=ax)
+        ax.set_title(f"line = '{line}'")
+
+    # Remove unused subplots
+    for ax in axes[n:]:
+        ax.remove()
+
+    fig.suptitle(suptitle, fontsize=14)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.show()
