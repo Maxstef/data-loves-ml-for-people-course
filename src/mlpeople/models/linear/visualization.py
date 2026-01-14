@@ -47,7 +47,7 @@ def plot_1d_predictions(
     if ax is None:
         _, ax = plt.subplots()
 
-    ax.plot(X, predictions, 'r', alpha=0.9)
+    ax.plot(X, predictions, "r", alpha=0.9)
     ax.scatter(X, y, s=8, alpha=0.8)
 
     ax.set_xlabel(xlabel)

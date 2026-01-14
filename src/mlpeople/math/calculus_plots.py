@@ -111,6 +111,9 @@ def plot_function_and_symbolic_derivative(
         Points at which to evaluate the function.
     title, xlabel, ylabel : str
         Plot labels.
+    layout:
+        - "overlay": function and derivative on the same axes
+        - "subplots": function and derivative on separate subplots
     show : bool
         Whether to call plt.show().
     """
