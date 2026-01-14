@@ -56,6 +56,7 @@ def plot_function_and_numeric_derivative(
         ax.plot(x_values, y, label=function_label, color="blue")
         ax.plot(x_values, dy, linestyle="--", label=derivative_label, color="red")
 
+        ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.legend()
         ax.grid(True)
@@ -65,6 +66,7 @@ def plot_function_and_numeric_derivative(
 
         ax_f.plot(x_values, y, label=function_label, color="blue")
         ax_f.set_ylabel("f(x)")
+        ax_f.set_xlabel(xlabel)
         ax_f.legend()
         ax_f.grid(True)
 
@@ -130,6 +132,7 @@ def plot_function_and_symbolic_derivative(
         ax.plot(x_values, y, label=str(f), color="blue")
         ax.plot(x_values, dy, linestyle="--", label=str(df), color="red")
 
+        ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.legend()
         ax.grid(True)
@@ -139,6 +142,7 @@ def plot_function_and_symbolic_derivative(
 
         ax_f.plot(x_values, y, label=str(f), color="blue")
         ax_f.set_ylabel("f(x)")
+        ax_f.set_xlabel(xlabel)
         ax_f.legend()
         ax_f.grid(True)
 
