@@ -201,3 +201,138 @@ def plot_linear_transformation_with_grid_3d(
     fig.suptitle(title, fontsize=14)
     plt.tight_layout()
     plt.show()
+
+
+def plot_dimension_reduction_3d_to_2d(
+    A,
+    vectors,
+    labels=None,
+    colors=None,
+    title_3d="Original 3D Space",
+    title_2d="Reduced 2D Space",
+    scale_2d=1,
+    show_plane=False,
+):
+    """
+    Visualizes a linear dimension reduction from R^3 to R^2.
+
+    Parameters
+    ----------
+    A : np.ndarray
+        2x3 matrix representing linear reduction from 3D to 2D.
+    vectors : list of np.ndarray
+        List of 3D vectors to transform.
+    labels : list of str, optional
+        Labels for the vectors. Defaults to v1, v2, ...
+    colors : list of str, optional
+        Colors for the vectors. Defaults to ['r','b','g',...].
+    title_3d : str
+        Title for the 3D original space plot.
+    title_2d : str
+        Title for the 2D reduced space plot.
+    scale_2d : float
+        Factor to scale 2D vectors for visibility.
+    show_plane : bool
+        If True, show the plane spanned by the projection in the 3D plot.
+    """
+
+    A = np.asarray(A)
+    if A.shape != (2, 3):
+        raise ValueError("Matrix A must have shape (2, 3) for 3D → 2D reduction.")
+
+    n = len(vectors)
+
+    # Default labels
+    if labels is None:
+        labels = [f"v{i+1}" for i in range(n)]
+
+    # Default colors
+    if colors is None:
+        base_colors = ["r", "b", "g", "m", "c", "y", "k"]
+        colors = [base_colors[i % len(base_colors)] for i in range(n)]
+
+    # ---------- 3D plot ----------
+    fig_3d = plt.figure(figsize=(10, 8))
+    ax3d = fig_3d.add_subplot(111, projection="3d")
+
+    all_points_3d = np.array(vectors)
+    margin_3d = max(0.5, all_points_3d.max() * 0.1)
+    ax3d.set_xlim(
+        all_points_3d[:, 0].min() - margin_3d, all_points_3d[:, 0].max() + margin_3d
+    )
+    ax3d.set_ylim(
+        all_points_3d[:, 1].min() - margin_3d, all_points_3d[:, 1].max() + margin_3d
+    )
+    ax3d.set_zlim(
+        all_points_3d[:, 2].min() - margin_3d, all_points_3d[:, 2].max() + margin_3d
+    )
+    ax3d.set_box_aspect([1, 1, 1])
+
+    # Optional: show the projection plane
+    if show_plane:
+        u, v = A[0], A[1]  # two row vectors of the projection
+        s = np.linspace(-1.5, 1.5, 10)
+        t = np.linspace(-1.5, 1.5, 10)
+        S, T = np.meshgrid(s, t)
+        X = S * u[0] + T * v[0]
+        Y = S * u[1] + T * v[1]
+        Z = S * u[2] + T * v[2]
+        # ax3d.plot_surface(X, Y, Z, alpha=0.2, color="gray")
+        ax3d.plot_wireframe(X, Y, Z, color="blue", linewidth=1, alpha=0.25)
+        # ax3d.plot_surface(X, Y, Z, cmap="viridis", alpha=0.25)
+
+    for v, label, color in zip(vectors, labels, colors):
+        ax3d.quiver(0, 0, 0, v[0], v[1], v[2], color=color, linewidth=2)
+        ax3d.text(
+            v[0] + margin_3d * 0.05,
+            v[1] + margin_3d * 0.05,
+            v[2] + margin_3d * 0.05,
+            label,
+            color=color,
+            fontsize=10,
+        )
+
+    ax3d.set_title(title_3d, fontsize=12)
+    ax3d.set_xlabel("X")
+    ax3d.set_ylabel("Y")
+    ax3d.set_zlabel("Z")
+
+    # ---------- 2D plot ----------
+    fig_2d, ax2d = plt.subplots(figsize=(8, 6))
+
+    # Compute transformed vectors and scale them for visibility
+    transformed_vectors = [A @ v * scale_2d for v in vectors]
+
+    # Compute axis limits based on scaled vectors
+    transformed_points_scaled = np.array(transformed_vectors)
+    margin_2d = max(0.5, transformed_points_scaled.max() * 0.1)
+    ax2d.set_xlim(
+        transformed_points_scaled[:, 0].min() - margin_2d,
+        transformed_points_scaled[:, 0].max() + margin_2d,
+    )
+    ax2d.set_ylim(
+        transformed_points_scaled[:, 1].min() - margin_2d,
+        transformed_points_scaled[:, 1].max() + margin_2d,
+    )
+
+    for v2, label, color in zip(transformed_vectors, labels, colors):
+        ax2d.quiver(
+            0, 0, v2[0], v2[1], color=color, angles="xy", scale_units="xy", scale=1
+        )
+        ax2d.text(
+            v2[0] + margin_2d * 0.05,
+            v2[1] + margin_2d * 0.05,
+            f"{label}'",
+            color=color,
+            fontsize=10,
+        )
+
+    ax2d.set_title(title_2d, fontsize=12)
+    ax2d.set_xlabel("X")
+    ax2d.set_ylabel("Y")
+    ax2d.axhline(0, color="black", linewidth=0.5)
+    ax2d.axvline(0, color="black", linewidth=0.5)
+    ax2d.set_aspect("equal")
+    ax2d.grid(True)
+
+    plt.show()
