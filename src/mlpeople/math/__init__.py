@@ -1,13 +1,8 @@
-# mlpeople/math/__init__.py
-from .calculus_plots import (
-    plot_function_and_numeric_derivative,
-    plot_function_and_symbolic_derivative,
-)
-from .calculus import derivative, derivative_central
+from .calculus import *
+from .calculus_plots import *
 
-__all__ = [
-    "plot_function_and_numeric_derivative",
-    "plot_function_and_symbolic_derivative",
-    "derivative",
-    "derivative_central",
-]
+from .linear_properties import *
+from .linear_numeric import *
+from .evaluation import *
+from .linear_plots_2d import *
+from .linear_plots_3d import *
