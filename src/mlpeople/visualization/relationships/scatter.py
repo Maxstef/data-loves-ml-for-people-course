@@ -74,3 +74,16 @@ def scatter_compare_by_category(
 
     plt.tight_layout(pad=4)
     plt.show()
+
+
+def plot_scatter(x, y, title=None, xlabel="X", ylabel="Y", grid=False):
+    """
+    Plots simple scatter with matplotlib.pyplot
+
+    """
+    plt.scatter(x, y)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(grid)
+    plt.show()
