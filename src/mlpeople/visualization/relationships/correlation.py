@@ -1,5 +1,7 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 import plotly.express as px
 
 
@@ -145,5 +147,21 @@ def show_correlation_matrix_filtered_static(
                 )
 
     ax.set_title(f"Filtered Correlation Matrix (|corr| > {abs_threshold})")
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_correlation_heatmap(
+    X: pd.DataFrame, y: pd.Series, figsize=(14, 10), annot: bool = True
+):
+    """
+    Plot a correlation heatmap for numeric features and a target variable.
+    """
+
+    corr = pd.concat([X.select_dtypes(include=["number"]), y], axis=1).corr()
+
+    plt.figure(figsize=figsize)
+    sns.heatmap(corr, annot=annot, fmt=".2f", cmap="coolwarm", center=0, square=True)
+    plt.title("Correlation Heatmap")
     plt.tight_layout()
     plt.show()

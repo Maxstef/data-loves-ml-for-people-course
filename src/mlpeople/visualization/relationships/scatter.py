@@ -87,3 +87,79 @@ def plot_scatter(x, y, title=None, xlabel="X", ylabel="Y", grid=False):
     plt.ylabel(ylabel)
     plt.grid(grid)
     plt.show()
+
+
+def plot_predicted_vs_actual(
+    y_train,
+    y_train_pred,
+    y_test=None,
+    y_test_pred=None,
+    figsize=(8, 6),
+    train_color="blue",
+    test_color="red",
+    alpha=0.6,
+    title="Predicted vs Actual",
+    xlabel="Actual values",
+    ylabel="Predicted values",
+    show_legend=True,
+):
+    """
+    Plots predicted vs actual values for training (and optionally test) sets.
+
+    Parameters
+    ----------
+    y_train : array-like
+        True values for training set.
+    y_train_pred : array-like
+        Predicted values for training set.
+    y_test : array-like, optional
+        True values for test set.
+    y_test_pred : array-like, optional
+        Predicted values for test set.
+    figsize : tuple, default (8, 6)
+        Figure size.
+    train_color : str, default "blue"
+        Color for training points.
+    test_color : str, default "red"
+        Color for test points.
+    alpha : float, default 0.6
+        Transparency for scatter points.
+    title : str, default "Predicted vs Actual"
+        Plot title.
+    xlabel : str, default "Actual values"
+        X-axis label.
+    ylabel : str, default "Predicted values"
+        Y-axis label.
+    show_legend : bool, default True
+        Whether to display legend.
+    """
+
+    plt.figure(figsize=figsize)
+
+    # Training set
+    plt.scatter(y_train, y_train_pred, color=train_color, alpha=alpha, label="Train")
+
+    # Test set (optional)
+    if y_test is not None and y_test_pred is not None:
+        plt.scatter(y_test, y_test_pred, color=test_color, alpha=alpha, label="Test")
+
+    # Reference line y=x
+    all_values = []
+    all_values.extend(y_train)
+    all_values.extend(y_train_pred)
+    if y_test is not None:
+        all_values.extend(y_test)
+    if y_test_pred is not None:
+        all_values.extend(y_test_pred)
+    min_val, max_val = min(all_values), max(all_values)
+    plt.plot([min_val, max_val], [min_val, max_val], "k--", label="Ideal", lw=1)
+
+    # Labels and title
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    if show_legend:
+        plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
