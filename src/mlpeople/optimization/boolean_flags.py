@@ -118,12 +118,14 @@ def optimize_bool_flag_cols(df: pd.DataFrame, flag_cols):
         values = set(unique)
 
         # Integer flags: allow only 0/1
-        if pd.api.types.is_integer_dtype(series):
-            if not set(series.dropna().unique()).issubset({0, 1}):
+        if pd.api.types.is_numeric_dtype(series):
+            unique_vals = set(series.dropna().unique())
+            if not set(series.dropna().unique()).issubset({0, 1, 0.0, 1.0}):
                 raise ValueError(
                     f"Column '{col}' contains non-boolean integers: {values}"
                 )
-            df[col] = series.astype("int8")
+            # Safe cast to int8
+            df[col] = series.fillna(-1).astype("int8")
             continue
 
         # Known boolean values
@@ -134,10 +136,10 @@ def optimize_bool_flag_cols(df: pd.DataFrame, flag_cols):
         else:
             true_value = sorted(values)[0]
 
-        df[col] = np.where(
-            series.isna(),
-            np.nan,
-            series.astype(str).str.strip().str.casefold().eq(true_value).astype("int8"),
-        )
+        mask = series.astype(str).str.strip().str.casefold().eq(true_value)
+
+        # Replace NaN with -1 to keep int8
+        df[col] = mask.astype("int8")
+        df.loc[series.isna(), col] = -1
 
     return df
