@@ -5,6 +5,8 @@ from .calculus import gradient_function
 def batch_gradient_descent(
     loss_f,
     init_w,
+    X=None,
+    y=None,
     lr=0.01,
     epochs=1000,
     epsilon=1e-6,
@@ -24,17 +26,23 @@ def batch_gradient_descent(
 
     Optimization stops early if the gradient norm falls below `epsilon`.
 
-    Supports both:
+    Supports:
     - Scalar optimization (1D problem)
     - Vector optimization (multivariate problem)
+    - Supervised problems (e.g., linear regression) via optional X and y
 
     Parameters
     ----------
     loss_f : callable
         Objective (loss) function to minimize.
-        Must accept a scalar or 1D NumPy array and return a scalar.
+        If X and y are provided, loss_f must have signature loss_f(W, X, y) -> scalar.
+        Otherwise, loss_f should accept only the parameter vector (or scalar) W.
     init_w : float or array-like
         Initial parameter value (scalar) or parameter vector.
+    X : np.ndarray, optional
+        Feature matrix for supervised problems. Default: None.
+    y : np.ndarray, optional
+        Target vector for supervised problems. Default: None.
     lr : float, optional
         Learning rate (step size). Must be positive.
     epochs : int, optional
@@ -60,6 +68,7 @@ def batch_gradient_descent(
         Optimized parameter(s).
     history : list, optional
         Returned only if return_history=True.
+        Each entry is a tuple (parameters, loss value, gradient norm).
 
     Raises
     ------
@@ -72,16 +81,18 @@ def batch_gradient_descent(
     # -------------------- Parameter validation --------------------
     if lr <= 0:
         raise ValueError("Learning rate must be positive")
-
     if epochs <= 0:
         raise ValueError("epochs must be positive")
-
     if epsilon <= 0:
         raise ValueError("epsilon must be positive")
 
     # -------------------- Gradient setup --------------------
     if grad_f is None:
-        grad_f = gradient_function(loss_f, h=h, central=central)
+        # If X and y are provided, wrap loss_f to accept only W
+        if X is not None and y is not None:
+            grad_f = gradient_function(lambda w: loss_f(w, X, y), h=h, central=central)
+        else:
+            grad_f = gradient_function(loss_f, h=h, central=central)
 
     # Convert initial parameters to NumPy array for uniform handling
     w = np.asarray(init_w, dtype=float)
@@ -96,7 +107,8 @@ def batch_gradient_descent(
         # Compute gradient norm (scalar or vector case)
         grad_norm = abs(grad) if is_scalar else np.linalg.norm(grad)
 
-        loss_val = loss_f(w)
+        # Compute loss (wrap with X, y if provided)
+        loss_val = loss_f(w, X, y) if X is not None and y is not None else loss_f(w)
 
         # -------------------- Divergence checks --------------------
         if (
