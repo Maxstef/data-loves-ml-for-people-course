@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def is_linear_numeric(f, x_values=None, y_values=None, a_values=None, tol=1e-9):
     """
     Numerically check whether a pure Python function f(x) is LINEAR.
@@ -74,3 +77,32 @@ def is_affine_numeric(f, x_values=None, y_values=None, tol=1e-9):
         return f(x) - f0
 
     return is_linear_numeric(g, x_values=x_values)
+
+
+def add_bias_column(X):
+    """
+    Add a bias (intercept) column of 1s to the feature matrix.
+
+    Parameters
+    ----------
+    X : array-like
+        Feature array of shape (n,) or (n, d).
+
+    Returns
+    -------
+    X_b : np.ndarray
+        Feature matrix with bias column added as the first column.
+        Shape: (n, d + 1), where d is the original number of features.
+    """
+
+    X = np.asarray(X, dtype=float)
+
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
+    elif X.ndim != 2:
+        raise ValueError("X must be a 1D or 2D array")
+
+    n_samples = X.shape[0]
+    bias = np.ones((n_samples, 1), dtype=X.dtype)
+
+    return np.hstack((bias, X))

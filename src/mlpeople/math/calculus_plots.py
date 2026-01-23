@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sp
 
-from .calculus import derivative
+from .calculus import derivative_point
 
 
 def plot_function_and_numeric_derivative(
@@ -44,7 +44,7 @@ def plot_function_and_numeric_derivative(
         Whether to call plt.show().
     """
     y = f(x_values)
-    dy = derivative(f, x_values, h=h)
+    dy = derivative_point(f, x_values, h=h)
 
     function_label = "f(x)" if function_label is None else f"f(x) = {function_label}"
     derivative_label = (
