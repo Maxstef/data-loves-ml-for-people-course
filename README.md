@@ -60,6 +60,14 @@ data-loves-ml-for-people-course/
 └── README.md
 ```
 
+### Project Structure
+
+To regenerate the src project structure overview:
+
+```bash
+python tools/generate_structure.py
+```
+
 ---
 
 ## 4. Setup Instructions
@@ -149,4 +157,12 @@ ruff fix src/ tests/
 #### 4.6.4. Type checking with Mypy
 ```bash
 mypy src/
+```
+
+### 4.7. src Project Structure
+
+To regenerate the src project structure overview:
+
+```bash
+python tools/generate_structure.py
 ```
