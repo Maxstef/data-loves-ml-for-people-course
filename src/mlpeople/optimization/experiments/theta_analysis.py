@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 from mlpeople.visualization.optimization import plot_loss_and_grad_vs_theta1
 from mlpeople.models.logistic import generate_logistic_regression_data
 from mlpeople.models.linear import generate_linear_regression_data
+from mlpeople.optimization.analysis.loss_landscape import (
+    linear_predict,
+    mse_loss_linear_yhat,
+    grad_mse_linear,
+    logistic_predict_proba,
+    log_loss_yhat,
+    grad_log_loss,
+)
 
 
 def run_linear_regression_theta1_analysis(
@@ -15,9 +23,9 @@ def run_linear_regression_theta1_analysis(
     seed=42,
     theta0_fixed=0.0,
     theta1_values=np.linspace(-7, 7, 200),
-    predict_fn=lambda theta, X: X @ theta,
-    loss_fn=lambda y_true, y_pred: np.sum((y_pred - y_true) ** 2) / (2 * len(y_true)),
-    grad_fn=lambda theta, X, y: (X.T @ ((X @ theta) - y)) / X.shape[0],
+    predict_fn=linear_predict,
+    loss_fn=mse_loss_linear_yhat,
+    grad_fn=grad_mse_linear,
     subplots=False,
 ):
     """
@@ -60,13 +68,9 @@ def run_logistic_regression_theta1_analysis(
     seed=42,
     theta0_fixed=0.0,
     theta1_values=np.linspace(-7, 7, 200),
-    predict_fn=lambda theta, X: 1 / (1 + np.exp(-(X @ theta))),
-    loss_fn=lambda y, y_hat: -np.mean(
-        y * np.log(np.clip(y_hat, 1e-15, 1 - 1e-15))
-        + (1 - y) * np.log(np.clip(1 - y_hat, 1e-15, 1))
-    ),
-    grad_fn=lambda theta, X, y: (X.T @ ((1 / (1 + np.exp(-(X @ theta)))) - y))
-    / X.shape[0],
+    predict_fn=logistic_predict_proba,
+    loss_fn=log_loss_yhat,
+    grad_fn=grad_log_loss,
     subplots=False,
 ):
     """

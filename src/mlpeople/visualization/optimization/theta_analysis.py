@@ -7,6 +7,9 @@ from mlpeople.optimization.analysis import (
     log_loss,
     grad_norm_mse_logistic,
     grad_norm_log,
+    linear_predict,
+    mse_loss_linear_yhat,
+    grad_mse_linear,
 )
 
 
@@ -17,10 +20,10 @@ def plot_loss_and_grad_vs_theta1(
     theta0=0.0,
     theta1_values=np.linspace(-7, 7, 200),
     theta1_true=None,
-    predict_fn=lambda theta, X: X @ theta,
+    predict_fn=linear_predict,
     # Below default values are for linear regression loss and gradient
-    loss_fn=lambda y_true, y_pred: np.sum((y_pred - y_true) ** 2) / (2 * len(y_true)),
-    grad_fn=lambda theta, X, y: (X.T @ ((X @ theta) - y)) / X.shape[0],
+    loss_fn=mse_loss_linear_yhat,
+    grad_fn=grad_mse_linear,
     subplots=False,
 ):
     """
