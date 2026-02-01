@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.colors import ListedColormap
+
+from .metrics import confusion_matrix
 
 
 def plot_sigmoid_fit_1d(
@@ -238,4 +241,46 @@ def plot_predicted_probabilities(X, y, theta, ax=None, title="Predicted Probabil
     ax.set_xlabel("Sample Index")
     ax.set_ylabel("Predicted Probability")
     ax.set_title(title)
+    plt.show()
+
+
+def plot_confusion_matrix(targets, predictions, name="", normalize=None, cmap="Blues"):
+    """
+    Plot a binary confusion matrix as a heatmap using Seaborn.
+
+    Parameters
+    ----------
+    targets : array-like
+        True binary labels (0 or 1).
+    predictions : array-like
+        Predicted binary labels (0 or 1).
+    name : str, optional
+        Title prefix for the plot (default is '').
+    normalize : {None, 'true', 'pred', 'all'}, optional
+        Normalization mode, passed to `confusion_matrix` (default is None).
+    cmap : str, optional
+        Colormap for the heatmap (default is 'Blues').
+
+    Notes
+    -----
+    This function only supports binary classification.
+    """
+    # get confusion matrix (dict)
+    cf = confusion_matrix(targets, predictions, normalize=normalize)
+
+    # convert to 2x2 array in standard layout
+    cf_array = np.array([[cf["TN"], cf["FP"]], [cf["FN"], cf["TP"]]])
+
+    plt.figure()
+    sns.heatmap(
+        cf_array,
+        annot=True,
+        fmt=".2f" if normalize else "d",
+        cmap=cmap,
+        xticklabels=[0, 1],
+        yticklabels=[0, 1],
+    )
+    plt.xlabel("Prediction")
+    plt.ylabel("Target")
+    plt.title(f"{name} Confusion Matrix")
     plt.show()

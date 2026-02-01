@@ -15,7 +15,7 @@ from .model import fit_logistic, predict, predict_proba
 from .loss import sigmoid, hypothesis, log_loss, compute_gradient
 
 # Metrics
-from .metrics import accuracy, precision, recall, f1_score
+from .metrics import accuracy, precision, recall, f1_score, confusion_matrix
 
 # Visualization
 from .visualization import (
@@ -23,6 +23,7 @@ from .visualization import (
     plot_decision_boundary_2d,
     plot_log_loss_curve,
     plot_predicted_probabilities,
+    plot_confusion_matrix,
 )
 
 # Optional: define __all__ for cleaner "from ... import *" usage
@@ -44,9 +45,11 @@ __all__ = [
     "precision",
     "recall",
     "f1_score",
+    "confusion_matrix",
     # Visualization
     "plot_sigmoid_fit_1d",
     "plot_decision_boundary_2d",
     "plot_log_loss_curve",
     "plot_predicted_probabilities",
+    "plot_confusion_matrix",
 ]
