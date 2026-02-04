@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 
-from .model import estimate_linear, predict
+from .model import estimate_linear, predict, fit_ols
 from .metrics import r2_score, rmse, mae
 
 
@@ -14,6 +14,7 @@ def plot_1d_predictions(
     predict_fn=None,
     xlabel="Feature",
     ylabel="Target",
+    title=None,
     ax=None,
 ):
     """
@@ -54,6 +55,9 @@ def plot_1d_predictions(
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.legend(["Estimate", "Actual"])
+
+    if title:
+        ax.set_title(title)
 
     return ax
 
@@ -371,3 +375,65 @@ def plot_residuals(
     plt.title("Scale–Location Plot")
     plt.grid(True)
     plt.show()
+
+
+def plot_polynomial_fit_1d(xs: np.ndarray, ys: np.ndarray, degree: int = 2):
+    """
+    Fit a polynomial regression model of a chosen degree and visualize predictions.
+
+    The function expands the feature matrix with powers of x:
+        degree=1 → x
+        degree=2 → x, x²
+        degree=3 → x, x², x³
+        ...
+
+    Parameters
+    ----------
+    xs : np.ndarray of shape (n_samples, 1)
+        Input feature column.
+
+    ys : np.ndarray
+        Target values.
+
+    degree : int, default=2
+        Polynomial degree. Must be >= 1.
+
+    Returns
+    -------
+    beta_ols : np.ndarray
+        Learned regression coefficients.
+    """
+
+    if degree < 1:
+        raise ValueError("degree must be >= 1")
+
+    # Ensure xs is 2D
+    if xs.ndim == 1:
+        xs = xs.reshape(-1, 1)
+
+    # Build polynomial feature matrix: [x, x², ..., x^degree]
+    xs_poly = np.hstack([xs**i for i in range(1, degree + 1)])
+
+    beta_ols = fit_ols(xs_poly, ys, fit_intercept=True)
+    # print(f'beta_ols: {beta_ols}')
+
+    # -------- Smooth curve for prettier plotting --------
+    x_dense = np.linspace(xs.min(), xs.max(), 300).reshape(-1, 1)
+    x_dense_poly = np.hstack([x_dense**i for i in range(1, degree + 1)])
+
+    y_dense_preds = predict(x_dense_poly, beta_ols, fit_intercept=True)
+
+    plt.figure(figsize=(8, 5))
+
+    plt.scatter(xs, ys, label="Data", alpha=0.6)
+    plt.plot(
+        x_dense, y_dense_preds, label=f"Polynomial Fit (degree={degree})", color="r"
+    )
+
+    plt.title(f"Polynomial Regression (degree={degree})")
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.legend()
+    plt.show()
+
+    return beta_ols
