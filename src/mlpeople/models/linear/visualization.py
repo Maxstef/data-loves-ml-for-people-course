@@ -50,7 +50,7 @@ def plot_1d_predictions(
         _, ax = plt.subplots()
 
     ax.plot(X, predictions, "r", alpha=0.9)
-    ax.scatter(X, y, s=8, alpha=0.8)
+    ax.scatter(X, y, alpha=0.6)
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -377,7 +377,25 @@ def plot_residuals(
     plt.show()
 
 
-def plot_polynomial_fit_1d(xs: np.ndarray, ys: np.ndarray, degree: int = 2):
+def _format_beta(beta, precision=3):
+    rounded = np.round(beta, precision)
+
+    terms = [f"{rounded[0]}"]  # intercept
+
+    for i, coef in enumerate(rounded[1:], start=1):
+        terms.append(f"{coef}·x^{i}" if i > 1 else f"{coef}·x")
+
+    return "y = " + " + ".join(terms)
+
+
+def plot_polynomial_fit_1d(
+    xs,
+    ys,
+    degree=2,
+    ax=None,
+    show=True,
+    show_beta=True,
+):
     """
     Fit a polynomial regression model of a chosen degree and visualize predictions.
 
@@ -391,21 +409,20 @@ def plot_polynomial_fit_1d(xs: np.ndarray, ys: np.ndarray, degree: int = 2):
     ----------
     xs : np.ndarray of shape (n_samples, 1)
         Input feature column.
-
     ys : np.ndarray
         Target values.
-
     degree : int, default=2
         Polynomial degree. Must be >= 1.
-
     Returns
     -------
     beta_ols : np.ndarray
         Learned regression coefficients.
     """
-
     if degree < 1:
         raise ValueError("degree must be >= 1")
+
+    if ax is None:
+        fig, ax = plt.subplots()
 
     # Ensure xs is 2D
     if xs.ndim == 1:
@@ -423,17 +440,21 @@ def plot_polynomial_fit_1d(xs: np.ndarray, ys: np.ndarray, degree: int = 2):
 
     y_dense_preds = predict(x_dense_poly, beta_ols, fit_intercept=True)
 
-    plt.figure(figsize=(8, 5))
+    ax.scatter(xs, ys, alpha=0.6)
 
-    plt.scatter(xs, ys, label="Data", alpha=0.6)
-    plt.plot(
-        x_dense, y_dense_preds, label=f"Polynomial Fit (degree={degree})", color="r"
-    )
+    label = f"degree={degree}"
 
-    plt.title(f"Polynomial Regression (degree={degree})")
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.legend()
-    plt.show()
+    if show_beta:
+        label += "\n" + _format_beta(beta_ols, 3)
+
+    ax.plot(x_dense, y_dense_preds, label=label, color="red")
+
+    ax.set_title(f"Polynomial Fit (degree={degree})")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.legend()
+
+    if show and ax is None:
+        plt.show()
 
     return beta_ols
