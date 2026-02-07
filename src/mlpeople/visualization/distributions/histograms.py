@@ -1,5 +1,8 @@
 import plotly.express as px
 from plotly.subplots import make_subplots
+from scipy.stats import gaussian_kde
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 def px_histogram(
@@ -75,3 +78,44 @@ def px_histogram_comparison(
 
     fig.show()
     return fig
+
+
+def plt_histogram(
+    df, col, color_col, labels=None, bins=30, density=True, kde=True, colors=None
+):
+    if labels is None:
+        labels = {}
+
+    # Default colors: red for first class, blue for second
+    if colors is None:
+        colors = ["red", "blue"]
+
+    classes = sorted(df[color_col].dropna().unique())
+
+    plt.figure(figsize=(8, 5))
+
+    for i, c in enumerate(classes):
+        data = df[df[color_col] == c][col].dropna()
+        color = colors[i % len(colors)]  # cycle if more than 2 classes
+
+        # Histogram
+        plt.hist(
+            data,
+            bins=bins,
+            density=density,
+            alpha=0.4,
+            label=labels.get(c, c),
+            color=color,
+        )
+
+        # KDE line
+        if kde and len(data) > 1:
+            kde_est = gaussian_kde(data)
+            x_vals = np.linspace(data.min(), data.max(), 300)
+            plt.plot(x_vals, kde_est(x_vals), color=color)
+
+    plt.xlabel(col)
+    plt.ylabel("Density" if density else "Count")
+    plt.title(f"{col} Distribution by {color_col}")
+    plt.legend()
+    plt.show()
