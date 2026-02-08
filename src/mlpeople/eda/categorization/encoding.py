@@ -227,16 +227,17 @@ def keep_only_top_n(df, col, n):
 
     Returns
     -------
-    pd.DataFrame
-        The dataframe with the column modified: only the top N values remain,
-        all others are set to NaN.
+    tuple(pd.DataFrame, pd.Series)
+        - Modified dataframe
+        - Top N values with their counts
     """
     df_copy = df.copy()
 
-    # Get top N most frequent values
-    top = df_copy[col].value_counts().nlargest(n).index
+    # Get top N most frequent values WITH counts
+    top_counts = df_copy[col].value_counts().nlargest(n)
+    top_values = top_counts.index
 
     # Keep only top N, set others to NaN
-    df_copy[col] = df_copy[col].where(df_copy[col].isin(top))
+    df_copy[col] = df_copy[col].where(df_copy[col].isin(top_values))
 
-    return df_copy
+    return df_copy, top_counts
