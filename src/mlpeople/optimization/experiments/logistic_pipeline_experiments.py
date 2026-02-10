@@ -34,8 +34,117 @@ def run_experiment(
     skip_logging=False,
 ):
     """
-    Run a single end-to-end experiment: split, preprocess, train, predict, score.
-    todo comment
+    Run a single end-to-end machine learning experiment.
+
+    This function performs a full modeling workflow including:
+    train/validation split, preprocessing (scaling + encoding),
+    optional feature engineering, model training, and AUROC evaluation.
+
+    All preprocessing steps are fit on the training data only to prevent
+    data leakage.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset containing both features and target.
+
+    target_col : str
+        Name of the target column.
+
+    test_df : pd.DataFrame, optional
+        Optional holdout dataset used only for inference.
+
+    test_size : float, default=0.2
+        Fraction of data used for validation split.
+
+    stratify_col : str, optional
+        Column used for stratified sampling during the split.
+
+    drop_cols : list[str], optional
+        Columns removed before modeling.
+
+    categorical_cols : list[str], optional
+        Columns treated as categorical and one-hot encoded.
+
+    scale_mode : {"minmax", "standard"}, default="minmax"
+        Scaling strategy applied to numeric features.
+
+    top_n_cat_values : dict[str, int], optional
+        Restricts categorical columns to their top-N most frequent values.
+        Rare values are replaced with NaN before encoding.
+
+    encode_drop : str or None, default="if_binary"
+        Passed directly to sklearn OneHotEncoder `drop` parameter.
+
+    binary_cat_flag_cols : dict, optional
+        Mapping describing custom binary flags derived from categorical columns.
+
+        Example:
+        {
+            "Geography": [
+                {"flag_name": "is_germany", "value": "Germany"}
+            ]
+        }
+
+    binary_num_flag_cols : dict, optional
+        Mapping describing binary flags derived from numeric columns using
+        thresholds.
+
+        Example:
+        {
+            "Age": [
+                {
+                    "flag_name": "age_gt_60",
+                    "threshold": 60,
+                    "drop_original": False
+                }
+            ]
+        }
+
+    model : sklearn-like estimator, optional
+        Model implementing `fit` and `predict_proba`.
+        Defaults to LogisticRegression(liblinear).
+
+    random_state : int, default=42
+        Random seed for reproducibility.
+
+    skip_logging : bool, default=False
+        If True, suppresses non-critical warnings.
+
+    Returns
+    -------
+    tuple
+        If `test_df` is provided:
+
+            (
+                X_train,
+                X_val,
+                X_test,
+                train_pred_proba,
+                val_pred_proba,
+                test_pred_proba,
+                roc_auc_train,
+                roc_auc_val,
+                model
+            )
+
+        Otherwise:
+
+            (
+                X_train,
+                X_val,
+                train_pred_proba,
+                val_pred_proba,
+                roc_auc_train,
+                roc_auc_val,
+                model
+            )
+
+    Notes
+    -----
+    - Numeric scaling and encoders are fit on training data only.
+    - Designed for rapid experimentation rather than production pipelines.
+    - Works best with sklearn-compatible estimators.
     """
     if drop_cols is None:
         drop_cols = []
@@ -197,9 +306,57 @@ def run_experiments(
     model_options=None,
 ):
     """
-    Run multiple experiments over all combinations of hyperparameters.
-    Returns a DataFrame with results sorted by validation AUROC.
-    todo comment
+    Execute a grid of experiments across multiple preprocessing and modeling options.
+
+    This function performs a Cartesian product over provided parameter options,
+    runs `run_experiment` for each configuration, and returns a ranked summary
+    based on validation AUROC.
+
+    It is intended for lightweight experiment tracking without requiring
+    external tools such as MLflow or Weights & Biases.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataset containing features and target.
+
+    target_col : str
+        Name of the target column.
+
+    *_options : list, optional
+        Lists of candidate values for each parameter. Every combination is evaluated.
+
+    model_options : list, optional
+        List of sklearn-compatible estimators.
+
+    Returns
+    -------
+    pd.DataFrame
+        Experiment summary sorted by descending validation AUROC.
+
+        Columns include:
+
+        - test_size
+        - stratify_col
+        - drop_cols
+        - categorical_cols
+        - scale_mode
+        - encode_drop
+        - top_n_cat_values
+        - binary_cat_flag_cols
+        - binary_num_flag_cols
+        - model
+        - roc_auc_train
+        - roc_auc_val
+        - overfit_gap
+
+    Notes
+    -----
+    - Failures in individual experiments are caught to allow the grid search
+    to continue.
+    - The `overfit_gap` helps quickly identify high-variance models.
+    - Consider replacing print-based failure reporting with logging for
+    production usage.
     """
     if model_options is None:
         model_options = [LogisticRegression(solver="liblinear")]
