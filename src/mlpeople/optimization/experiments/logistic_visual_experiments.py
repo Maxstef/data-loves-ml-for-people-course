@@ -10,10 +10,10 @@ from mlpeople.models.logistic import (
 
 
 def run_1d_plot_experiment(
-    df, column, target_col, sample_size=500, lr=0.01, epochs=5000
+    df, column, target_col, sample_size=500, lr=0.01, epochs=5000, random_state=1
 ):
     scaler = StandardScaler()
-    df_sample = df.sample(sample_size)
+    df_sample = df.sample(sample_size, random_state=random_state)
 
     X = df_sample[[column]].to_numpy()
     X_scaled = scaler.fit_transform(X)
@@ -33,10 +33,10 @@ def run_1d_plot_experiment(
 
 
 def run_2d_plot_experiment(
-    df, col_1, col_2, target_col, sample_size=500, lr=0.01, epochs=5000
+    df, col_1, col_2, target_col, sample_size=500, lr=0.01, epochs=5000, random_state=1
 ):
     scaler = StandardScaler()
-    df_sample = df.sample(sample_size)
+    df_sample = df.sample(sample_size, random_state=random_state)
 
     X = df_sample[[col_1, col_2]].to_numpy()
     X_scaled = scaler.fit_transform(X)
