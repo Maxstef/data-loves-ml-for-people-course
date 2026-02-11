@@ -17,6 +17,9 @@ dependencies = [
     "sympy>=1.14,<2.0",
     "scikit-learn>=1.8,<2.0",
 
+    # Imbalanced learning
+    "imbalanced-learn>=0.14,<0.15",
+
     # IO / formats
     "pyarrow>=14,<17",
 
