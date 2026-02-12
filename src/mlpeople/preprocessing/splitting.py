@@ -58,3 +58,43 @@ def split_input_target(train_df, val_df, target_col, drop_cols=[], verbose=True)
     val_targets = val_df[target_col].copy()
 
     return train_inputs, train_targets, val_inputs, val_targets
+
+
+def split_train_test_df(
+    df, target_col, test_size=0.2, stratify_by_target=True, random_state=42
+):
+    """
+    Splits a DataFrame into training and testing sets.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The input DataFrame containing features and the target column.
+    target_col : str
+        The name of the target column in the DataFrame.
+    test_size : float, optional (default=0.2)
+        Proportion of the dataset to include in the test split.
+    stratify_by_target : bool, optional (default=True)
+        If True, perform stratified sampling using the target column to maintain class proportions.
+    random_state : int, optional (default=42)
+        Random seed for reproducibility of the split.
+
+    Returns
+    -------
+    X_train : pandas.DataFrame
+        Training set features.
+    X_test : pandas.DataFrame
+        Testing set features.
+    y_train : pandas.Series
+        Training set target values.
+    y_test : pandas.Series
+        Testing set target values.
+    """
+    X = df.drop(columns=target_col)
+    y = df[target_col]
+
+    stratify = y if stratify_by_target else None
+
+    return train_test_split(
+        X, y, test_size=test_size, random_state=random_state, stratify=stratify
+    )
