@@ -175,11 +175,11 @@ def plot_decision_boundary_2d(
     probs = 1 / (1 + np.exp(-logits))
     Z = (probs >= 0.5).reshape(xx.shape)
 
-    cmap_light = ListedColormap(["#FFAAAA", "#AAAAFF"])
-    cmap_bold = ListedColormap(["#FF0000", "#0000FF"])
+    cmap_light = ListedColormap(["#AAAAFF", "#FFAAAA"])
+    cmap_bold = ListedColormap(["#0000FF", "#FF0000"])
 
     ax.contourf(xx, yy, Z, alpha=0.3, cmap=cmap_light)
-    ax.scatter(X[:, 0], X[:, 1], c=y, cmap=cmap_bold, edgecolor="k")
+    ax.scatter(X[:, 0], X[:, 1], c=y, alpha=0.7, cmap=cmap_bold, edgecolor="k")
     ax.set_xlabel("X1")
     ax.set_ylabel("X2")
     ax.set_title(title)
