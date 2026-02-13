@@ -10,7 +10,8 @@ from sklearn.preprocessing import (
     OneHotEncoder,
     PolynomialFeatures,
 )
-from sklearn.pipeline import Pipeline
+
+# from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.compose import make_column_selector
 from sklearn.base import clone
@@ -23,6 +24,11 @@ from mlpeople.preprocessing.transformers import (
     CategoricalBinaryFlagTransformer,
     TopNCategoricalTransformer,
 )
+
+from imblearn.pipeline import Pipeline
+from imblearn.under_sampling import TomekLinks, RandomUnderSampler
+from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler
+from imblearn.combine import SMOTETomek
 
 import logging
 
@@ -72,6 +78,7 @@ def run_experiment_poly(
     binary_num_flag_cols=None,
     model=None,
     random_state: int = 42,
+    sampler=None,
 ) -> dict:
     """
     Run a single experiment with optional polynomial features for numeric columns.
@@ -90,6 +97,7 @@ def run_experiment_poly(
         polynomial_after_scale: Apply polynomial after scaling if True.
         model: sklearn-compatible estimator.
         random_state: Random seed.
+        sampler: resampling train data before training model if provided
 
     Returns:
         dict with:
@@ -132,7 +140,7 @@ def run_experiment_poly(
     if top_n_cat_values:
         pre_steps.append(("top_n", TopNCategoricalTransformer(top_n_cat_values)))
 
-    feature_engineering = Pipeline(pre_steps) if pre_steps else None
+    feature_engineering = pre_steps
 
     # --- Step 4: Numeric columns & scaling ---
     if scale_mode == "minmax":
@@ -198,19 +206,49 @@ def run_experiment_poly(
     steps = []
 
     if feature_engineering is not None:
-        steps.append(("feature_engineering", feature_engineering))
+        steps.extend(feature_engineering)
 
-    steps.extend(
-        [
-            ("preprocessor", preprocessor),
-            ("classifier", model),
-        ]
-    )
+    # --- Step 8.1: Optional Resampling train data ---
+    # --- If sampler value is provided ---
+    if sampler is not None:
+        # first all data preprocessing
+        steps.append(("preprocessor", preprocessor))
 
-    model_pipeline = Pipeline(
-        steps,
-        # memory="pipeline_cache", # might give 3–10x speedups in experiment loops ?
-    )
+        # second data resampling
+        samplers = {
+            "smote": lambda: SMOTE(random_state=random_state),
+            "adasin": lambda: ADASYN(random_state=random_state),
+            "smotetomek": lambda: SMOTETomek(random_state=random_state),
+            "randomover": lambda: RandomOverSampler(random_state=random_state),
+            "randomunder": lambda: RandomUnderSampler(random_state=random_state),
+            "tomeklinks": lambda: TomekLinks(),
+        }
+
+        try:
+            steps.append(("sampler", samplers[sampler]()))
+        except KeyError:
+            raise ValueError(f"sampler must be one of {list(samplers.keys())}")
+
+        # last model fit with preprocessed and resampled data
+        steps.append(("classifier", model))
+
+        model_pipeline = Pipeline(
+            steps,
+        )
+
+    # --- Default flow with no resampling ---
+    else:
+        steps.extend(
+            [
+                ("preprocessor", preprocessor),
+                ("classifier", model),
+            ]
+        )
+
+        model_pipeline = Pipeline(
+            steps,
+            # memory="pipeline_cache", # might give 3–10x speedups in experiment loops ?
+        )
 
     # --- Step 9: Fit pipeline ---
     model_pipeline.fit(train_inputs, train_targets)
@@ -248,6 +286,7 @@ def run_experiments_poly(
     polynomial_degree_options=[1, 2, 3],
     polynomial_after_scale_options=[True, False],
     model_options=None,
+    sampler_options=[None],
 ) -> pd.DataFrame:
     """
     Run multiple polynomial experiments over all combinations of hyperparameters.
@@ -272,6 +311,7 @@ def run_experiments_poly(
         polynomial_degree,
         polynomial_after_scale,
         model,
+        sampler,
     ) in product(
         test_size_options,
         stratify_col_options,
@@ -286,6 +326,7 @@ def run_experiments_poly(
         polynomial_degree_options,
         polynomial_after_scale_options,
         model_options,
+        sampler_options,
     ):
         if polynomial_degree == 1 and not polynomial_after_scale:
             continue
@@ -307,6 +348,7 @@ def run_experiments_poly(
                 polynomial_degree=polynomial_degree,
                 polynomial_after_scale=polynomial_after_scale,
                 model=model,
+                sampler=sampler,
             )
 
             binary_cat_flag_cols_result = ()
@@ -331,6 +373,7 @@ def run_experiments_poly(
                     "scale_mode": scale_mode,
                     "encode_drop": encode_drop,
                     "model": str(model),
+                    "sampler": sampler,
                     "separate_binary_numeric": separate_binary_numeric,
                     "top_n_cat_values": (
                         tuple((k, v) for k, v in top_n_cat_values.items())
