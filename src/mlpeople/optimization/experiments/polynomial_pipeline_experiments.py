@@ -23,6 +23,7 @@ from mlpeople.preprocessing.transformers import (
     NumericBinaryFlagTransformer,
     CategoricalBinaryFlagTransformer,
     TopNCategoricalTransformer,
+    NumericBinner,
 )
 
 from imblearn.pipeline import Pipeline
@@ -76,6 +77,7 @@ def run_experiment_poly(
     top_n_cat_values=None,
     binary_cat_flag_cols=None,
     binary_num_flag_cols=None,
+    num_bin_cols=None,
     model=None,
     random_state: int = 42,
     sampler=None,
@@ -131,6 +133,9 @@ def run_experiment_poly(
         pre_steps.append(
             ("num_flags", NumericBinaryFlagTransformer(binary_num_flag_cols))
         )
+
+    if num_bin_cols:
+        pre_steps.append(("num_bin", NumericBinner(num_bin_cols)))
 
     if binary_cat_flag_cols:
         pre_steps.append(
@@ -282,6 +287,7 @@ def run_experiments_poly(
     top_n_cat_values_options=[None],
     binary_cat_flag_cols_options=[None],
     binary_num_flag_cols_options=[None],
+    num_bin_cols_options=[None],
     polynomial_interaction_only_options=[False],
     polynomial_degree_options=[1, 2, 3],
     polynomial_after_scale_options=[True, False],
@@ -307,6 +313,7 @@ def run_experiments_poly(
         top_n_cat_values,
         binary_cat_flag_cols,
         binary_num_flag_cols,
+        num_bin_cols,
         polynomial_interaction_only,
         polynomial_degree,
         polynomial_after_scale,
@@ -322,6 +329,7 @@ def run_experiments_poly(
         top_n_cat_values_options,
         binary_cat_flag_cols_options,
         binary_num_flag_cols_options,
+        num_bin_cols_options,
         polynomial_interaction_only_options,
         polynomial_degree_options,
         polynomial_after_scale_options,
@@ -344,6 +352,7 @@ def run_experiments_poly(
                 top_n_cat_values=top_n_cat_values,
                 binary_cat_flag_cols=binary_cat_flag_cols,
                 binary_num_flag_cols=binary_num_flag_cols,
+                num_bin_cols=num_bin_cols,
                 polynomial_interaction_only=polynomial_interaction_only,
                 polynomial_degree=polynomial_degree,
                 polynomial_after_scale=polynomial_after_scale,
@@ -382,6 +391,14 @@ def run_experiments_poly(
                     ),
                     "binary_cat_flag_cols": binary_cat_flag_cols_result,
                     "binary_num_flag_cols": binary_num_flag_cols_result,
+                    "num_bin_cols": (
+                        tuple(
+                            (v["new_col"], v["drop_original"], v["bins"])
+                            for k, v in num_bin_cols.items()
+                        )
+                        if num_bin_cols is not None
+                        else ()
+                    ),
                     "polynomial_degree": polynomial_degree,
                     "polynomial_interaction_only": polynomial_interaction_only,
                     "polynomial_after_scale": polynomial_after_scale,

@@ -74,7 +74,7 @@ class NumericBinaryFlagTransformer(BaseEstimator, TransformerMixin):
                 X[flag_name] = op_func(X[col], threshold).astype(int)
 
                 if setup.get("drop_original", False):
-                    X = X.drop(columns=col)
+                    X = X.drop(columns=col, errors="ignore")
 
         return X
 
@@ -144,5 +144,47 @@ class TopNCategoricalTransformer(BaseEstimator, TransformerMixin):
 
         for col, allowed in self.top_values_.items():
             X[col] = X[col].where(X[col].isin(allowed))
+
+        return X
+
+
+class NumericBinner(BaseEstimator, TransformerMixin):
+    def __init__(self, mapping):
+        """
+        mapping = {
+            "EstimatedSalary": {
+                "bins": [0, 50000, 120000, float("inf")],
+                "labels": ["low", "medium", "high"],
+                "new_col": "SalaryScore",
+                "drop_original": True
+            }
+        }
+        """
+        self.mapping = mapping
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        cols_to_drop = []
+
+        for col, cfg in self.mapping.items():
+
+            if col not in X.columns:
+                raise ValueError(f"Column '{col}' not found in DataFrame")
+
+            new_col = cfg.get("new_col", f"{col}_binned")
+            drop_original = cfg.get("drop_original", False)
+
+            X[new_col] = pd.cut(
+                X[col], bins=cfg["bins"], labels=cfg["labels"], ordered=True
+            )
+
+            if drop_original:
+                cols_to_drop.append(col)
+
+        if cols_to_drop:
+            X = X.drop(columns=cols_to_drop, errors="ignore")
 
         return X
