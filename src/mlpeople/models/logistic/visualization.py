@@ -3,6 +3,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.colors import ListedColormap
 
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    confusion_matrix as confusion_matrix_skl,
+    roc_curve,
+    auc,
+)
+
 from .metrics import confusion_matrix
 
 
@@ -284,3 +292,60 @@ def plot_confusion_matrix(targets, predictions, name="", normalize=None, cmap="B
     plt.ylabel("Target")
     plt.title(f"{name} Confusion Matrix")
     plt.show()
+
+
+def predict_and_plot_confusion_matrix_roc(
+    model,
+    inputs,
+    targets,
+    name="",
+    threshold=0.5,
+    verbose=True,
+    plot_roc_curve=True,
+):
+    # Predict probabilities
+    y_pred_proba = model.predict_proba(inputs)[:, 1]
+
+    # predict target based on threshold, calculate f1 and confusion matrix
+    preds = (y_pred_proba >= threshold).astype(int)
+    f1 = f1_score(targets, preds, pos_label=1)
+
+    if verbose:
+        print(name + " F1 score: {:.2f}%".format(f1 * 100))
+
+    # Compute ROC curve
+    fpr, tpr, thresholds = roc_curve(targets, y_pred_proba, pos_label=1)
+
+    # Compute AUROC
+    roc_auc = auc(fpr, tpr)
+    if verbose:
+        print(f"AUROC for {name}: {roc_auc:.2f}")
+
+    cf = confusion_matrix_skl(targets, preds, normalize="true")
+    plt.figure()
+    sns.heatmap(cf, annot=True)
+    plt.xlabel("Prediction")
+    plt.ylabel("Target")
+    plt.title("{} Confusion Matrix".format(name))
+    plt.show()
+
+    # Plot the ROC curve
+    if plot_roc_curve:
+        plt.figure()
+        plt.plot(
+            fpr,
+            tpr,
+            color="darkorange",
+            lw=2,
+            label=f"ROC curve (area = {roc_auc:.2f})",
+        )
+        plt.plot([0, 1], [0, 1], color="navy", lw=2, linestyle="--")
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel("False Positive Rate")
+        plt.ylabel("True Positive Rate")
+        plt.title(f"Receiver Operating Characteristic (ROC) Curve for {name}")
+        plt.legend(loc="lower right")
+        plt.show()
+
+    return preds, y_pred_proba
