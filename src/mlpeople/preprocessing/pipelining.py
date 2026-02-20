@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.compose import ColumnTransformer, make_column_selector
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
 
 from imblearn.pipeline import Pipeline as ImblPipeline
 from sklearn.pipeline import Pipeline as SkPipeline
@@ -22,6 +22,8 @@ def get_model_pipeline(
     cat_impute_strategy="most_frequent",
     cat_impute_value="missing",  # applicable only if cat_impute_strategy="constant"
     cat_encoder_drop=None,
+    scaler_skip=False,
+    scaler_mode="standard",
 ):
     """
     Create a basic preprocessing + model pipeline.
@@ -40,6 +42,8 @@ def get_model_pipeline(
         cat_impute_strategy: Imputation strategy for categorical columns.
         cat_impute_value: Value to use if cat_impute_strategy="constant".
         cat_encoder_drop: Column to drop in OneHotEncoder (e.g., "first").
+        scaler_skip: Flag to skip scaling
+        scaler_mode: "standard" or "minmax"
 
     Returns:
         sklearn.pipeline.Pipeline object
@@ -52,9 +56,20 @@ def get_model_pipeline(
     if num_impute_strategy == "constant":
         num_imputer_params["fill_value"] = num_impute_value
 
-    numeric_pipeline = Pipeline(
-        [("imputer", SimpleImputer(**num_imputer_params)), ("scaler", StandardScaler())]
-    )
+    numeric_steps = [("imputer", SimpleImputer(**num_imputer_params))]
+
+    # --- SCALER LOGIC ---
+    if not scaler_skip:
+        if scaler_mode == "standard":
+            scaler = StandardScaler()
+        elif scaler_mode == "minmax":
+            scaler = MinMaxScaler()
+        else:
+            raise ValueError("scaler_mode must be 'standard' or 'minmax'")
+
+        numeric_steps.append(("scaler", scaler))
+
+    numeric_pipeline = Pipeline(numeric_steps)
 
     # Categorical pipeline
     cat_imputer_params = {"strategy": cat_impute_strategy}
