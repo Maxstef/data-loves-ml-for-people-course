@@ -188,3 +188,27 @@ class NumericBinner(BaseEstimator, TransformerMixin):
             X = X.drop(columns=cols_to_drop, errors="ignore")
 
         return X
+
+
+class ColumnDropper(BaseEstimator, TransformerMixin):
+    """
+    Removes specified columns from a DataFrame.
+    """
+
+    def __init__(self, columns: list):
+        """
+        Parameters
+        ----------
+        columns : list
+            List of column names to remove.
+        """
+        self.columns = columns
+
+    def fit(self, X, y=None):
+        # Validate columns during fit for safer pipelines
+        self.columns_ = [col for col in self.columns if col in X.columns]
+        return self
+
+    def transform(self, X):
+        X = X.copy()
+        return X.drop(columns=self.columns_, errors="ignore")
