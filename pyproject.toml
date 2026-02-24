@@ -20,6 +20,9 @@ dependencies = [
     # Imbalanced learning
     "imbalanced-learn>=0.14,<0.15",
 
+    # Feature engineering
+    "mlxtend>=0.23.1,<0.24",
+
     # IO / formats
     "pyarrow>=14,<17",
 
