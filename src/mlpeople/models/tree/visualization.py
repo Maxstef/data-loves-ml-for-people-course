@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def _compute_positions(node, depth, x_offset, positions, level_width=1.0):
+def _compute_positions(
+    node, depth, x_offset, positions, level_width=1.0, max_depth=None
+):
     """
     Recursively compute (x, y) positions for each node.
 
@@ -10,39 +12,41 @@ def _compute_positions(node, depth, x_offset, positions, level_width=1.0):
         next available x position after placing this subtree
     """
 
+    # Stop expanding deeper if max_depth reached
+    if max_depth is not None and depth >= max_depth:
+        positions[id(node)] = (x_offset, -depth)
+        return x_offset + level_width
+
     if "value" in node:
         positions[id(node)] = (x_offset, -depth)
         return x_offset + level_width
 
     # Compute left subtree
     x_left = _compute_positions(
-        node["left"], depth + 1, x_offset, positions, level_width
+        node["left"], depth + 1, x_offset, positions, level_width, max_depth
     )
 
     # Compute right subtree
     x_right = _compute_positions(
-        node["right"], depth + 1, x_left, positions, level_width
+        node["right"], depth + 1, x_left, positions, level_width, max_depth
     )
 
     # Place current node centered above children
     mid = (positions[id(node["left"])][0] + positions[id(node["right"])][0]) / 2
-
     positions[id(node)] = (mid, -depth)
 
     return x_right
 
 
-def _draw_tree(ax, node, positions, parent=None):
+def _draw_tree(ax, node, positions, parent=None, depth=0, max_depth=None):
     """
     Draw nodes and edges recursively.
     """
 
     x, y = positions[id(node)]
 
-    # Determine color
     node_color = _get_class_color(node)
 
-    # Draw node box
     ax.text(
         x,
         y,
@@ -57,10 +61,14 @@ def _draw_tree(ax, node, positions, parent=None):
         px, py = positions[id(parent)]
         ax.plot([px, x], [py, y])
 
+    # Stop expanding deeper if max_depth reached
+    if max_depth is not None and depth >= max_depth:
+        return
+
     # Recursively draw children
     if "value" not in node:
-        _draw_tree(ax, node["left"], positions, node)
-        _draw_tree(ax, node["right"], positions, node)
+        _draw_tree(ax, node["left"], positions, node, depth + 1, max_depth)
+        _draw_tree(ax, node["right"], positions, node, depth + 1, max_depth)
 
 
 def _node_label(node):
@@ -123,7 +131,7 @@ def _get_class_color(node, alpha=0.9):
     return colors.get(majority_class, "lightgray")
 
 
-def plot_tree_matplotlib(tree, figsize=(12, 6)):
+def plot_tree_matplotlib(tree, figsize=(12, 6), max_depth=None):
     """
     Plots decision tree using matplotlib.
 
@@ -131,17 +139,17 @@ def plot_tree_matplotlib(tree, figsize=(12, 6)):
     ----------
     tree : dict
         Root node of trained DecisionTree (tree.tree)
+    max_depth : int or None
+        Maximum depth to display (None = full tree)
     """
 
     fig, ax = plt.subplots(figsize=figsize)
     ax.set_axis_off()
 
-    # First compute positions
     positions = {}
-    _compute_positions(tree, 0, 0, positions)
+    _compute_positions(tree, 0, 0, positions, max_depth=max_depth)
 
-    # Then draw nodes
-    _draw_tree(ax, tree, positions)
+    _draw_tree(ax, tree, positions, max_depth=max_depth)
 
     plt.show()
 
