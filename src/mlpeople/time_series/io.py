@@ -34,9 +34,9 @@ def read_shampoo_df(file_name):
     # convert month name to month number
     month_number = pd.to_datetime(month_name, format="%b").dt.month
 
-    # construct real date (use 1900 as base)
+    # construct real date (use 2000 as base)
     df["Date"] = pd.to_datetime(
-        dict(year=1900 + year_number, month=month_number, day=1)
+        dict(year=2000 + year_number, month=month_number, day=1)
     )
 
     df.set_index("Date", inplace=True)
