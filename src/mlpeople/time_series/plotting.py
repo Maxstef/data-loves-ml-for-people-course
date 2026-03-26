@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 
+from statsmodels.graphics.tsaplots import plot_acf
+from statsmodels.graphics.tsaplots import plot_pacf
+
 # columns that are engineered and should not be auto-selected as original
 engineered_cols = ["Date", "trend", "detrended", "season_key", "seasonality", "resid"]
 
@@ -204,3 +207,59 @@ def plot_ts_df_decomposition(
             title=title_decompose,
             figsize=figsize_decompose,
         )
+
+
+def show_acf(
+    df,
+    target_col=None,
+    lags=50,
+    figsize=(10, 6),
+    name="",
+    ax=None,
+):
+    # pick column
+    if target_col is None:
+        if hasattr(df, "columns"):
+            target_col = df.columns[0]
+        else:
+            target_col = None  # it's already a Series
+
+    series = df[target_col] if target_col else df
+    series = series.dropna()
+
+    # plotting
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+
+    plot_acf(series, lags=lags, ax=ax)
+
+    ax.set_title(f"Autocorrelation Function (ACF) - {name}")
+    plt.show()
+
+
+def show_pacf(
+    df,
+    target_col=None,
+    lags=50,
+    figsize=(10, 6),
+    name="",
+    ax=None,
+):
+    # pick column
+    if target_col is None:
+        if hasattr(df, "columns"):
+            target_col = df.columns[0]
+        else:
+            target_col = None  # it's already a Series
+
+    series = df[target_col] if target_col else df
+    series = series.dropna()
+
+    # plotting
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+
+    plot_pacf(series, lags=lags, ax=ax, method="ywm")
+
+    ax.set_title(f"Partial Autocorrelation Function (PACF) - {name}")
+    plt.show()
