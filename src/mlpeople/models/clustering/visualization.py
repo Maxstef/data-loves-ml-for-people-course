@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.cm as cm
+from sklearn.metrics import silhouette_samples, silhouette_score
 
 
 def plot_kmeans_result(X, centroids, labels, history, title="K-Means from scratch"):
@@ -104,4 +106,70 @@ def plot_kmeans_centroid_movement(
     plt.scatter(X[:, 0], X[:, 1], c=labels, s=20)
     plt.scatter(centroids[:, 0], centroids[:, 1], c="red", s=200, marker="X")
     plt.title(title)
+    plt.show()
+
+
+def plot_silhouette(X, labels, ax, title="Silhouette plot"):
+    """
+    Draw silhouette plot on a provided matplotlib axis.
+
+    This function does NOT create or show a figure.
+    It is intended to be used inside composite plots.
+    """
+    X = np.asarray(X)
+    labels = np.asarray(labels)
+
+    sil_vals = silhouette_samples(X, labels)
+    silhouette_avg = silhouette_score(X, labels)
+
+    y_lower = 10
+    unique_labels = np.unique(labels)
+
+    for i, cluster in enumerate(unique_labels):
+        cluster_sil_vals = sil_vals[labels == cluster]
+        cluster_sil_vals.sort()
+
+        size = cluster_sil_vals.shape[0]
+        y_upper = y_lower + size
+
+        color = cm.nipy_spectral(float(i) / len(unique_labels))
+        ax.fill_betweenx(
+            np.arange(y_lower, y_upper),
+            0,
+            cluster_sil_vals,
+            facecolor=color,
+            edgecolor=color,
+            alpha=0.7,
+        )
+
+        ax.text(-0.05, y_lower + 0.5 * size, str(cluster))
+        y_lower = y_upper + 10
+
+    ax.axvline(x=silhouette_avg, color="red", linestyle="--")
+    ax.set_xlabel("Silhouette coefficient")
+    ax.set_ylabel("Cluster")
+    ax.set_title(f"{title}\nAvg = {silhouette_avg:.3f}")
+
+
+def plot_show_silhouette(X, labels, title="Silhouette plot"):
+    """
+    Create a new figure and display a standalone silhouette plot.
+    """
+    fig, ax = plt.subplots(figsize=(8, 6))
+    plot_silhouette(X, labels, ax=ax, title=title)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_clusters_and_silhouette(X, labels):
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # clusters
+    axes[0].scatter(X[:, 0], X[:, 1], c=labels, s=30)
+    axes[0].set_title("Clusters")
+
+    # silhouette
+    plot_silhouette(X, labels, ax=axes[1], title="Silhouette")
+
+    plt.tight_layout()
     plt.show()
