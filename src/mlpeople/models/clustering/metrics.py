@@ -33,17 +33,22 @@ def silhouette_from_scratch(X, labels):
     unique_labels = np.unique(labels)
 
     for i in range(len(X)):
-        same_cluster = labels == labels[i]
-        other_clusters = unique_labels[unique_labels != labels[i]]
+        same_cluster = np.where(labels == labels[i])[0]
 
-        # a(i): mean intra-cluster distance
-        a = np.mean(dist[i][same_cluster]) if np.sum(same_cluster) > 1 else 0
+        # --- a(i) exclude self
+        if len(same_cluster) > 1:
+            a = np.mean(dist[i, same_cluster[same_cluster != i]])
+        else:
+            sil_values[i] = 0
+            continue
 
-        # b(i): smallest mean distance to other clusters
+        # --- b(i)
         b = np.inf
-        for c in other_clusters:
+        for c in unique_labels:
+            if c == labels[i]:
+                continue
             mask = labels == c
-            b = min(b, np.mean(dist[i][mask]))
+            b = min(b, np.mean(dist[i, mask]))
 
         sil_values[i] = (b - a) / max(a, b)
 
