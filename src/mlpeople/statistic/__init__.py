@@ -35,6 +35,20 @@ from .hypothesis_tests import (
     two_sample_t_test,
 )
 
+from .pca import (
+    pca_from_scratch,
+    plot_explained_variance,
+    plot_cumulative_variance,
+    plot_variance_bars,
+    plot_3d_original,
+    plot_3d_pca,
+    plot_pca_axes,
+    reconstruction_error_curve,
+    plot_reconstruction_error,
+    plot_pca_loadings,
+    plot_sorted_loadings,
+)
+
 __all__ = [
     "get_mean",
     "get_median",
@@ -63,4 +77,15 @@ __all__ = [
     "plot_z_vs_t",
     "two_sample_z_test",
     "two_sample_t_test",
+    "pca_from_scratch",
+    "plot_explained_variance",
+    "plot_cumulative_variance",
+    "plot_variance_bars",
+    "plot_3d_original",
+    "plot_3d_pca",
+    "plot_pca_axes",
+    "reconstruction_error_curve",
+    "plot_reconstruction_error",
+    "plot_pca_loadings",
+    "plot_sorted_loadings",
 ]
